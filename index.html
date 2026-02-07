@@ -12,12 +12,14 @@
     .hidden { display: none; }
     .card-panel { border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 30px; }
     .brand-logo { color: #1a237e; font-weight: 600; font-size: 1.5rem; }
-    .btn { border-radius: 12px; text-transform: none; font-weight: 600; height: 50px; }
+    .btn { border-radius: 12px; text-transform: none; font-weight: 600; height: 50px; display: flex; align-items: center; justify-content: center; }
     #loader { position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; display: none; }
     .result-box { background: #f5f5f5; border-radius: 12px; padding: 15px; margin-top: 20px; border-left: 5px solid #1a237e; }
     .vehiculo-tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.9rem; }
-    .btn-whatsapp { background-color: #25d366 !important; }
-    .btn-call { background-color: #2196f3 !important; } /* Azul solicitado */
+    .btn-whatsapp { background-color: #25d366 !important; min-width: 60px; }
+    .btn-call { background-color: #2196f3 !important; min-width: 60px; }
+    .label-visita { font-weight: 600; color: #d32f2f; display: block; margin-bottom: 5px; }
+    textarea.materialize-textarea { min-height: 100px; }
   </style>
 </head>
 <body>
@@ -46,27 +48,24 @@
       </div>
 
       <div id="search-results" class="hidden">
-        <div class="result-box">
-          <p><strong>Inmueble:</strong> <span id="r-inm"></span></p>
-          <p><strong>Res. Principal:</strong> <span id="r-nom1"></span></p>
-          <div style="display:flex; gap:10px; margin-top:10px;">
-            <a id="lnk-call" href="#" class="btn btn-call white-text btn-small" style="flex:1"><i class="material-icons left">phone</i>Llamar</a>
-            <a id="lnk-wa" href="#" target="_blank" class="btn btn-whatsapp white-text btn-small" style="flex:1"><i class="material-icons left">chat</i>WhatsApp</a>
+        <div id="box-content" class="result-box">
           </div>
-          <div id="r-otros" style="margin-top:10px; font-size:0.85rem; color:#666"></div>
-        </div>
-        <div id="vehiculos-list" style="margin-top:15px"></div>
+        
+        <button id="btn-show-visita" class="btn indigo darken-4 white-text w100" style="width:100%; margin-top:20px" onclick="prepararFormVisita()">Registrar Visita</button>
       </div>
 
-      <button class="btn indigo darken-4 white-text w100" style="width:100%; margin-top:20px" onclick="showView('view-visita')">Registrar Visita</button>
-      <button class="btn-flat red-text w100" style="width:100%; margin-top:20px" onclick="location.reload()">Cerrar Sesión</button>
+      <button class="btn-flat red-text w100" style="width:100%; margin-top:20px; text-align:center" onclick="location.reload()">Cerrar Sesión</button>
     </div>
 
     <div id="view-visita" class="hidden card-panel white">
-      <h5 class="center-align">Registrar Visita</h5>
-      <div class="input-field"><input id="vis-inm" type="text" placeholder="Inmueble" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="input-field"><input id="vis-nom" type="text" placeholder="Nombre Visitante"></div>
-      <div class="input-field"><input id="vis-tel" type="number" placeholder="Teléfono"></div>
+      <h5 class="center-align">Nuevo Registro de Visita</h5>
+      <div class="input-field">
+        <input id="vis-inm" type="text" readonly style="color: #9e9e9e; border-bottom: 1px dotted #ccc;">
+        <label class="active">Inmueble a visitar (Automático)</label>
+      </div>
+      <div class="input-field"><input id="vis-nom" type="text" placeholder="Nombre completo del visitante"></div>
+      <div class="input-field"><input id="vis-tel" type="number" placeholder="Teléfono del visitante"></div>
+      
       <label>Tipo Vehículo</label>
       <select id="vis-tipo" class="browser-default" style="margin-bottom:20px; border-radius:8px; border:1px solid #ddd">
         <option value="PEATONAL">PEATONAL</option>
@@ -75,25 +74,33 @@
         <option value="CAMIONETA">CAMIONETA</option>
         <option value="BICICLETA">BICICLETA</option>
       </select>
-      <div class="input-field"><input id="vis-placa" type="text" placeholder="Placa (Si aplica)" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="input-field"><textarea id="vis-obs" class="materialize-textarea" placeholder="Observación"></textarea></div>
+
+      <div class="input-field"><input id="vis-placa" type="text" placeholder="Placa del vehículo" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field">
+        <textarea id="vis-obs" class="materialize-textarea" placeholder="Observaciones detalladas del ingreso..."></textarea>
+      </div>
       
       <button class="btn green darken-2 white-text w100" style="width:100%" onclick="guardarVisita()">Guardar Registro</button>
-      <button class="btn-flat grey-text w100" style="width:100%; margin-top:10px" onclick="showView('view-search')">Volver</button>
+      
+      <div class="row" style="margin-top:15px">
+        <div class="col s6"><button class="btn grey lighten-2 black-text w100" style="width:100%" onclick="limpiarFormVisita()">Limpiar</button></div>
+        <div class="col s6"><button class="btn-flat grey-text w100" style="width:100%" onclick="showView('view-search')">Volver</button></div>
+      </div>
     </div>
 
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycby1UDyuJyCeX1qN07pL8MPQ_Md34coG275LgQ-OnnLh9eL4CbgS1VmU8e9g65HsL0NI/exec";
+    const API = "https://script.google.com/macros/s/AKfycbxTGHTMpqXEuIxDfNRkPqvl1XQtYx1qqFPNCnAweGZYb_ho5-9k0Nkv_YB1PVmY_A1g/exec";
     let sess = {};
+    let currentInmueble = "";
 
     async function call(p) {
       document.getElementById('loader').style.display='block';
       try {
         const r = await fetch(API,{method:'POST',body:JSON.stringify(p)});
         return await r.json();
-      } catch(e) { alert("Error de red"); return {success:false}; }
+      } catch(e) { alert("Error de conexión"); return {success:false}; }
       finally { document.getElementById('loader').style.display='none'; }
     }
 
@@ -110,24 +117,64 @@
 
     async function buscar() {
       const t = document.getElementById('search-input').value;
-      if(!t) return alert("Ingrese inmueble o placa.");
+      if(!t) return alert("Ingrese dato de búsqueda.");
       const r = await call({action:'buscarResidente', termino:t, idVig:sess.id, nomVig:sess.nombre});
+      
+      const box = document.getElementById('box-content');
+      box.innerHTML = "";
+
       if(r.success) {
-        const d = r.data;
-        document.getElementById('r-inm').innerText = d.inmueble;
-        document.getElementById('r-nom1').innerText = d.nom1;
-        document.getElementById('lnk-call').href = "tel:" + d.tel1;
-        document.getElementById('lnk-wa').href = "https://wa.me/" + d.tel1;
+        let html = "";
+        
+        if(r.tipo === "PROPIETARIO") {
+          currentInmueble = r.data.inmueble;
+          html += `<p><strong>Inmueble:</strong> ${r.data.inmueble}</p>`;
+          html += `<p><strong>Res. Principal:</strong> ${r.data.nom1}</p>`;
+          html += renderContactButtons(r.data.tel1);
+          
+          let otros = "";
+          r.data.otros.forEach((n, i) => { if(n) otros += `Res. ${i+2}: ${n}<br>`; });
+          if(otros) html += `<div style="margin-top:10px; font-size:0.85rem; color:#666">${otros}</div>`;
 
-        let otros = "";
-        [d.nom2, d.nom3, d.nom4, d.nom5].forEach((n, i) => { if(n) otros += `Res. ${i+2}: ${n}<br>`; });
-        document.getElementById('r-otros').innerHTML = otros;
+          let vHtml = "";
+          r.data.vehiculos.forEach(vh => { if(vh.p) vHtml += `<span class="vehiculo-tag"><strong>${vh.t}:</strong> ${vh.p}</span>`; });
+          if(vHtml) html += `<div style="margin-top:10px">${vHtml}</div>`;
+        } 
+        else if(r.tipo === "VISITANTE") {
+          currentInmueble = r.visita.inmueble;
+          html += `<span class="label-visita">RESULTADO: VISITA ANTERIOR</span>`;
+          html += `<p><strong>Visitó a:</strong> ${r.visita.inmueble}</p>`;
+          html += `<p><strong>Visitante:</strong> ${r.visita.nombre}</p>`;
+          html += `<p><strong>Vehículo:</strong> ${r.visita.tipoV} (${r.visita.placa})</p>`;
+          html += `<p><strong>Observación:</strong> ${r.visita.obs}</p>`;
+          
+          if(r.propietario) {
+            html += `<hr style="border:0; border-top:1px solid #ccc; margin:10px 0">`;
+            html += `<p style="font-size:0.9rem"><strong>Propietario Inmueble:</strong> ${r.propietario.nom1}</p>`;
+            html += renderContactButtons(r.propietario.tel1);
+          }
+        }
 
-        let vHtml = "";
-        d.v.forEach(vh => { if(vh.p) vHtml += `<span class="vehiculo-tag"><strong>${vh.t}:</strong> ${vh.p}</span>`; });
-        document.getElementById('vehiculos-list').innerHTML = vHtml || "Sin vehículos registrados.";
+        box.innerHTML = html;
         document.getElementById('search-results').classList.remove('hidden');
-      } else alert(r.message);
+      } else {
+        alert(r.message);
+        document.getElementById('search-results').classList.add('hidden');
+      }
+    }
+
+    function renderContactButtons(tel) {
+      if(!tel) return "";
+      return `
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <a href="tel:${tel}" class="btn btn-call white-text btn-small"><i class="material-icons">phone</i></a>
+          <a href="https://wa.me/${tel}" target="_blank" class="btn btn-whatsapp white-text btn-small"><i class="material-icons">chat</i></a>
+        </div>`;
+    }
+
+    function prepararFormVisita() {
+      document.getElementById('vis-inm').value = currentInmueble;
+      showView('view-visita');
     }
 
     async function guardarVisita() {
@@ -139,9 +186,22 @@
         placa: document.getElementById('vis-placa').value,
         obs: document.getElementById('vis-obs').value
       };
-      if(!data.inm || !data.nom) return alert("Inmueble y Nombre son obligatorios.");
+      if(!data.nom || !data.inm) return alert("El nombre del visitante es obligatorio.");
+      
       const r = await call({action:'registrarVisita', data, idVig:sess.id, nomVig:sess.nombre});
-      if(r.success) { alert("Visita registrada exitosamente."); limpiar(); showView('view-search'); }
+      if(r.success) { 
+        alert("Visita guardada correctamente."); 
+        limpiarFormVisita();
+        showView('view-search'); 
+      }
+    }
+
+    function limpiarFormVisita() {
+      document.getElementById('vis-nom').value = "";
+      document.getElementById('vis-tel').value = "";
+      document.getElementById('vis-placa').value = "";
+      document.getElementById('vis-obs').value = "";
+      document.getElementById('vis-tipo').selectedIndex = 0;
     }
 
     function limpiar() {
