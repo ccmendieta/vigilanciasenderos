@@ -8,161 +8,134 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    body { font-family: 'Poppins', sans-serif; background: #1a237e; color: #2c3e50; }
+    body { font-family: 'Poppins', sans-serif; background: #eef2f7; }
     .hidden { display: none; }
-    .card-panel { border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 30px; }
-    .brand-logo { color: #1a237e; font-weight: 600; font-size: 1.5rem; }
-    .btn { border-radius: 12px; text-transform: none; font-weight: 600; height: 50px; }
-    .btn-call { background-color: #2e7d32 !important; margin-left: 10px; }
+    .card-panel { border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 30px; }
+    .btn { border-radius: 12px; text-transform: none; font-weight: 600; height: 45px; }
+    .indigo-dark { background-color: #1a237e !important; }
+    .btn-whatsapp { background-color: #25d366 !important; }
     #loader { position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; display: none; }
-    .result-box { background: #f5f5f5; border-radius: 12px; padding: 15px; margin-top: 20px; border-left: 5px solid #1a237e; }
-    .vehiculo-tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.9rem; }
+    .data-box { background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #e0e0e0; margin-top: 15px; }
   </style>
 </head>
 <body>
-  <div class="progress" id="loader" style="margin:0;"><div class="indeterminate orange"></div></div>
+  <div class="progress" id="loader" style="margin:0;"><div class="indeterminate indigo"></div></div>
 
-  <div class="container" style="max-width: 450px; margin-top: 8vh;">
+  <div class="container" style="max-width: 480px; margin-top: 5vh;">
     
-    <div id="view-login" class="card-panel center-align white">
-      <i class="material-icons large indigo-text">security</i>
-      <h1 class="brand-logo">Control Vigilancia</h1>
-      <p class="grey-text">Senderos de las Acacias</p>
-      
-      <div class="input-field">
-        <input id="v-id" type="text" placeholder="ID Vigilante" oninput="this.value = this.value.toUpperCase()">
-      </div>
-      <div class="input-field">
-        <input id="v-pass" type="password" placeholder="Contraseña">
-      </div>
-      <button class="btn indigo darken-4 white-text w100" style="width:100%" onclick="loginVigilante()">Acceder al Sistema</button>
+    <div id="view-login" class="card-panel center-align">
+      <h5 class="indigo-text text-darken-4">Seguridad Acacias</h5>
+      <div class="input-field"><input id="v-id" type="text" placeholder="ID Vigilante" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field"><input id="v-pass" type="password" placeholder="Contraseña"></div>
+      <button class="btn indigo-dark white-text w100" style="width:100%" onclick="login()">Acceder</button>
     </div>
 
-    <div id="view-search" class="hidden card-panel white">
-      <div class="center-align">
-        <span class="blue-text" style="font-weight: 600;">Vigilante: <span id="vigilante-name"></span></span>
-      </div>
-      <h5 class="center-align" style="margin-bottom: 25px;">Consulta de Acceso</h5>
-      
+    <div id="view-search" class="hidden card-panel">
+      <p class="center-align grey-text">Vigilante: <span id="vig-nom" class="blue-text"></span></p>
       <div class="input-field">
-        <input id="search-input" type="text" placeholder="Inmueble o Placa" oninput="this.value = this.value.toUpperCase()">
-        <label class="active">Buscar Inmueble (A101) o Placa</label>
+        <input id="q" type="text" placeholder="Inmueble o Placa" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="row" style="margin-bottom:0">
+        <div class="col s6"><button class="btn grey lighten-2 black-text w100" style="width:100%" onclick="limpiar()">Limpiar</button></div>
+        <div class="col s6"><button class="btn orange darken-4 white-text w100" style="width:100%" onclick="buscar()">Enviar</button></div>
       </div>
 
-      <div class="row">
-        <div class="col s6">
-          <button class="btn grey lighten-2 black-text" style="width:100%" onclick="limpiarBusqueda()">Limpiar</button>
+      <div id="results" class="hidden data-box">
+        <h6 class="blue-text" id="res-inm-title"></h6>
+        <p><strong>Res. Principal:</strong> <span id="res-nom"></span></p>
+        <div style="display:flex; gap:10px; margin: 10px 0;">
+          <a id="lnk-tel" href="#" class="btn blue darken-3 white-text btn-small" style="flex:1"><i class="material-icons left">phone</i>Llamar</a>
+          <a id="lnk-wa" href="#" target="_blank" class="btn btn-whatsapp white-text btn-small" style="flex:1"><i class="material-icons left">chat</i>WhatsApp</a>
         </div>
-        <div class="col s6">
-          <button class="btn orange darken-4 white-text" style="width:100%" onclick="ejecutarBusqueda()">Enviar</button>
-        </div>
+        <div id="otros-res" class="grey-text" style="font-size:0.9rem"></div>
+        <div id="vehiculos-list" style="margin-top:10px"></div>
       </div>
 
-      <div id="search-results" class="hidden">
-        <div class="result-box">
-          <p><strong>Inmueble:</strong> <span id="res-inm"></span></p>
-          <p><strong>Residente:</strong> <span id="res-nom"></span></p>
-          <div style="display: flex; align-items: center; margin-top: 10px;">
-             <strong>Tel:</strong> <span id="res-tel" style="margin-left: 5px;"></span>
-             <a id="btn-llamar" href="#" class="btn btn-call btn-small white-text">
-               <i class="material-icons left">phone</i>Llamar
-             </a>
-          </div>
-        </div>
-        
-        <div id="vehiculos-list" style="margin-top: 15px;">
-          </div>
-      </div>
-
-      <button class="btn-flat red-text" style="width:100%; margin-top: 30px;" onclick="location.reload()">Cerrar Sesión</button>
+      <button class="btn indigo-dark white-text" style="width:100%; margin-top:20px" onclick="showFormVisita()">Registrar Visita</button>
+      <button class="btn-flat red-text w100" style="width:100%; margin-top:20px" onclick="location.reload()">Cerrar Sesión</button>
     </div>
 
+    <div id="view-visita" class="hidden card-panel">
+      <h6>Nuevo Registro de Visita</h6>
+      <div class="input-field"><input id="vis-inm" type="text" placeholder="Inmueble a visitar"></div>
+      <div class="input-field"><input id="vis-nom" type="text" placeholder="Nombre Visitante"></div>
+      <div class="input-field"><input id="vis-tel" type="number" placeholder="Teléfono Visitante"></div>
+      <label>Tipo Vehículo</label>
+      <select id="vis-tipo" class="browser-default" style="margin-bottom:20px; border-radius:8px">
+        <option value="PEATONAL">PEATONAL</option>
+        <option value="MOTOCICLETA">MOTOCICLETA</option>
+        <option value="AUTOMÓVIL">AUTOMÓVIL</option>
+        <option value="CAMIONETA">CAMIONETA</option>
+        <option value="BICICLETA">BICICLETA</option>
+      </select>
+      <div class="input-field"><input id="vis-placa" type="text" placeholder="Placas (Si aplica)" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field"><textarea id="vis-obs" class="materialize-textarea" placeholder="Observación"></textarea></div>
+      
+      <button class="btn green darken-2 white-text w100" style="width:100%" onclick="guardarVisita()">Guardar Visita</button>
+      <button class="btn-flat grey-text w100" style="width:100%; margin-top:10px" onclick="showView('view-search')">Cancelar</button>
+    </div>
   </div>
 
   <script>
-    // URL de tu implementación de Google Apps Script
-    const API_URL = "https://script.google.com/macros/s/AKfycby_F3LKBbdB3YQiuJPCyCmcQs1-XTl-myS4JlsrJl1H2j-1JnbnGf041IdlzCeX98fJ/exec";
+    const API = "https://script.google.com/macros/s/AKfycbzc8ef9JCRlccHyQvYWtefE-t1mlnQNMYS4rj-nvA1dB52YYNJUZpN-FhyeVv_WMlGS/exec";
+    let sess = {};
 
-    /**
-     * Comunicación con el Backend
-     */
-    async function callAPI(payload) {
-      document.getElementById('loader').style.display = 'block';
+    async function call(p) {
+      document.getElementById('loader').style.display='block';
       try {
-        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        return await response.json();
-      } catch (e) {
-        alert("Error de conexión con el servidor de seguridad.");
-        return { success: false };
-      } finally {
-        document.getElementById('loader').style.display = 'none';
-      }
+        const r = await fetch(API,{method:'POST',body:JSON.stringify(p)});
+        return await r.json();
+      } catch(e) { alert("Error de red"); return {success:false}; }
+      finally { document.getElementById('loader').style.display='none'; }
     }
 
-    /**
-     * Acción: Login Vigilante
-     */
-    async function loginVigilante() {
+    async function login() {
       const id = document.getElementById('v-id').value;
       const pass = document.getElementById('v-pass').value;
-
-      if(!id || !pass) return alert("Ingrese sus credenciales.");
-
-      const res = await callAPI({ action: 'loginVigilante', id: id, pass: pass });
-      if(res.success) {
-        document.getElementById('vigilante-name').innerText = res.nombre;
-        showView('view-search');
-      } else {
-        alert(res.message);
-      }
+      const r = await call({action:'loginVigilante', id, pass});
+      if(r.success) { sess=r; document.getElementById('vig-nom').innerText=r.nombre; showView('view-search'); }
+      else alert(r.message);
     }
 
-    /**
-     * Acción: Búsqueda de Residente o Vehículo
-     */
-    async function ejecutarBusqueda() {
-      const termino = document.getElementById('search-input').value;
-      if(!termino) return alert("Ingrese un dato para buscar.");
-
-      const res = await callAPI({ action: 'buscarResidente', termino: termino });
-      
-      const resContainer = document.getElementById('search-results');
-      if(res.success) {
-        const d = res.data;
-        document.getElementById('res-inm').innerText = d.inmueble;
+    async function buscar() {
+      const t = document.getElementById('q').value;
+      const r = await call({action:'buscarResidente', termino:t, idVig:sess.id, nomVig:sess.nombre});
+      if(r.success) {
+        const d = r.data;
+        document.getElementById('res-inm-title').innerText = "Inmueble: " + d.inmueble;
         document.getElementById('res-nom').innerText = d.nombrePrincipal;
-        document.getElementById('res-tel').innerText = d.telefonoPrincipal;
+        document.getElementById('lnk-tel').href = "tel:" + d.telPrincipal;
+        document.getElementById('lnk-wa').href = `https://wa.me/57${d.telPrincipal}`;
         
-        // Configurar botón llamar
-        document.getElementById('btn-llamar').href = "tel:" + d.telefonoPrincipal;
+        let o = ""; d.otrosResidentes.forEach((n,i)=>{ if(n) o+=`Res. ${i+2}: ${n}<br>`; });
+        document.getElementById('otros-res').innerHTML = o;
 
-        // Renderizar Vehículos
-        let vHtml = "<h6>Vehículos Registrados:</h6>";
-        let hayVehiculos = false;
-        d.vehiculos.forEach(v => {
-          if(v.placa) {
-            hayVehiculos = true;
-            vHtml += `<span class="vehiculo-tag"><strong>${v.tipo}:</strong> ${v.placa}</span>`;
-          }
-        });
-        document.getElementById('vehiculos-list').innerHTML = hayVehiculos ? vHtml : "<p class='grey-text'>Sin vehículos registrados.</p>";
+        let v = ""; d.vehiculos.forEach(vh=>{ if(vh.p) v+=`<div style="font-size:0.85rem">🚗 ${vh.t}: ${vh.p}</div>`; });
+        document.getElementById('vehiculos-list').innerHTML = v || "Sin vehículos";
         
-        resContainer.classList.remove('hidden');
-      } else {
-        resContainer.classList.add('hidden');
-        alert(res.message);
-      }
+        document.getElementById('results').classList.remove('hidden');
+      } else alert(r.message);
     }
 
-    function limpiarBusqueda() {
-      document.getElementById('search-input').value = "";
-      document.getElementById('search-results').classList.add('hidden');
+    async function guardarVisita() {
+      const data = {
+        inmueble: document.getElementById('vis-inm').value,
+        nombre: document.getElementById('vis-nom').value,
+        telefono: document.getElementById('vis-tel').value,
+        tipoV: document.getElementById('vis-tipo').value,
+        placaV: document.getElementById('vis-placa').value,
+        obs: document.getElementById('vis-obs').value
+      };
+      if(!data.inmueble || !data.nombre) return alert("Complete Inmueble y Nombre");
+      const r = await call({action:'registrarVisita', data, idVig:sess.id, nomVig:sess.nombre});
+      if(r.success) { alert("Visita registrada"); showView('view-search'); }
     }
 
-    function showView(id) {
-      document.getElementById('view-login').classList.add('hidden');
-      document.getElementById('view-search').classList.add('hidden');
-      document.getElementById(id).classList.remove('hidden');
+    function limpiar() { document.getElementById('q').value=""; document.getElementById('results').classList.add('hidden'); }
+    function showFormVisita() { showView('view-visita'); }
+    function showView(v) { 
+      ['view-login','view-search','view-visita'].forEach(i=>document.getElementById(i).classList.add('hidden'));
+      document.getElementById(v).classList.remove('hidden'); 
     }
   </script>
 </body>
