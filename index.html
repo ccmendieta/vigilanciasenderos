@@ -16,11 +16,15 @@
     #loader { position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; display: none; }
     .result-box { background: #f5f5f5; border-radius: 12px; padding: 15px; margin-top: 20px; border-left: 5px solid #1a237e; }
     .vehiculo-tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.9rem; }
+    
+    /* Botones específicos */
+    .btn-enviar { background-color: #2e7d32 !important; color: white !important; } /* Verde solicitado */
     .btn-whatsapp { background-color: #25d366 !important; min-width: 60px; }
     .btn-call { background-color: #2196f3 !important; min-width: 60px; }
     .btn-logout { background-color: #d32f2f !important; color: white !important; }
     .btn-limpiar { background-color: #d32f2f !important; }
     .btn-volver { background-color: #9e9e9e !important; }
+    
     .label-visita { font-weight: 600; color: #d32f2f; display: block; margin-bottom: 5px; }
     
     /* Quitar flechas de input number */
@@ -53,7 +57,7 @@
       </div>
       <div class="row">
         <div class="col s6"><button class="btn grey lighten-2 black-text w100" style="width:100%" onclick="limpiar()">Limpiar</button></div>
-        <div class="col s6"><button class="btn orange darken-4 white-text w100" style="width:100%" onclick="buscar()">Enviar</button></div>
+        <div class="col s6"><button class="btn btn-enviar w100" style="width:100%" onclick="buscar()">Enviar</button></div>
       </div>
 
       <div id="search-results" class="hidden">
@@ -95,7 +99,7 @@
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycby4Nmq0ch0J6_i2OrPrk3B7YSjIngrgKDy5NwctuTRXZn6Q6srnEyQoLA8t1uyWJ583/exec";
+    const API = "https://script.google.com/macros/s/AKfycbzb77PXdVowtFoSHbyqy1Z_a_BdEj-itY-V4vnzLS5IuozV5qobWm2dEUU-QfBfHPZl/exec";
     let sess = {};
     let currentInmueble = "";
 
@@ -143,9 +147,11 @@
         else if(r.tipo === "VISITANTE") {
           currentInmueble = r.visita.inmueble;
           html += `<span class="label-visita">RESULTADO: VISITA ANTERIOR</span>`;
-          html += `<p><strong>Visitante:</strong> ${r.visita.nombre}</p>${renderContactButtons(r.visita.tel1 || r.visita.tel)}`;
+          html += `<p><strong>Visitante:</strong> ${r.visita.nombre}</p>${renderContactButtons(r.visita.tel || r.visita.tel1)}`;
           html += `<p><strong>Visitó a:</strong> ${r.visita.inmueble}</p>`;
           html += `<p><strong>Vehículo:</strong> ${r.visita.tipoV} (${r.visita.placa})</p>`;
+          html += `<p><strong>Observación:</strong> ${r.visita.obs || 'Sin observaciones'}</p>`;
+          
           if(r.propietario) {
             html += `<hr style="border:0; border-top:1px solid #ccc; margin:10px 0">`;
             html += `<p style="font-size:0.9rem"><strong>Contacto Residente:</strong> ${r.propietario.nom1}</p>${renderContactButtons(r.propietario.tel1)}`;
