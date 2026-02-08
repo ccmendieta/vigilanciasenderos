@@ -18,7 +18,7 @@
     .vehiculo-tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.9rem; }
     
     /* Botones específicos */
-    .btn-enviar { background-color: #2e7d32 !important; color: white !important; } /* Verde solicitado */
+    .btn-buscar { background-color: #2e7d32 !important; color: white !important; }
     .btn-whatsapp { background-color: #25d366 !important; min-width: 60px; }
     .btn-call { background-color: #2196f3 !important; min-width: 60px; }
     .btn-logout { background-color: #d32f2f !important; color: white !important; }
@@ -57,7 +57,7 @@
       </div>
       <div class="row">
         <div class="col s6"><button class="btn grey lighten-2 black-text w100" style="width:100%" onclick="limpiar()">Limpiar</button></div>
-        <div class="col s6"><button class="btn btn-enviar w100" style="width:100%" onclick="buscar()">Enviar</button></div>
+        <div class="col s6"><button class="btn btn-buscar w100" style="width:100%" onclick="buscar()">Buscar</button></div>
       </div>
 
       <div id="search-results" class="hidden">
@@ -99,7 +99,7 @@
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbzb77PXdVowtFoSHbyqy1Z_a_BdEj-itY-V4vnzLS5IuozV5qobWm2dEUU-QfBfHPZl/exec";
+    const API = "https://script.google.com/macros/s/AKfycbzKoAO3NRanwthTWm_w7OqEUavTCTOFcnssIu40dYuJUWDdSLcuJplOxt4lz_sMGmfZ/exec";
     let sess = {};
     let currentInmueble = "";
 
