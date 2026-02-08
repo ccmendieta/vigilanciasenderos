@@ -15,17 +15,20 @@
     .btn { border-radius: 12px; text-transform: none; font-weight: 600; height: 52px; display: flex; align-items: center; justify-content: center; width: 100%; margin-bottom: 15px; }
     #loader { position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; display: none; }
     .result-box { background: #f5f5f5; border-radius: 12px; padding: 15px; margin-top: 20px; border-left: 5px solid #1a237e; }
+    .vehiculo-tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.9rem; }
     
-    /* Botones Solicitados */
-    .btn-main-nav { background-color: #1a237e !important; color: white !important; } /* Azul profundo */
+    /* Botones Menú - Azul Profundo */
+    .btn-main-nav { background-color: #1a237e !important; color: white !important; }
+    
+    /* Botones Funcionales */
     .btn-buscar { background-color: #2e7d32 !important; color: white !important; }
     .btn-logout { background-color: #d32f2f !important; color: white !important; }
     .btn-limpiar { background-color: #d32f2f !important; }
     .btn-volver { background-color: #9e9e9e !important; }
+    .label-visita { font-weight: 600; color: #d32f2f; display: block; margin-bottom: 5px; }
     
     input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
-    textarea.materialize-textarea { min-height: 100px; }
   </style>
 </head>
 <body>
@@ -47,9 +50,9 @@
       <p class="blue-text" style="font-weight: 600; margin-bottom: 30px;">Vigilante: <span id="vig-nombre-menu"></span></p>
       
       <button class="btn btn-main-nav" onclick="showView('view-search')">Registrar Ingreso</button>
-      <button class="btn btn-main-nav" onclick="alert('Funcionalidad próximamente: Registrar Salida')">Registrar Salida</button>
-      <button class="btn btn-main-nav" onclick="alert('Funcionalidad próximamente: Validar Mudanza')">Validar Mudanza</button>
-      <button class="btn btn-main-nav" onclick="alert('Funcionalidad próximamente: Cambiar Contraseña')">Cambiar Contraseña</button>
+      <button class="btn btn-main-nav" onclick="alert('Próximamente: Registrar Salida')">Registrar Salida</button>
+      <button class="btn btn-main-nav" onclick="alert('Próximamente: Validar Mudanza')">Validar Mudanza</button>
+      <button class="btn btn-main-nav" onclick="alert('Próximamente: Cambiar Contraseña')">Cambiar Contraseña</button>
       
       <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
         <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
@@ -76,7 +79,8 @@
       <h5 class="center-align">Nuevo Registro de Visita</h5>
       <div class="input-field"><input id="vis-inm" type="text" readonly><label class="active">Inmueble a visitar</label></div>
       <div class="input-field"><input id="vis-nom" type="text" placeholder="NOMBRE" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="input-field"><input id="vis-tel" type="number" placeholder="TELÉFONO (Ej: 3001234567)"></div>
+      <div class="input-field"><input id="vis-tel" type="number" placeholder="TELÉFONO"></div>
+      
       <label>Vehículo</label>
       <select id="vis-tipo" class="browser-default" style="margin-bottom:20px; border-radius:8px; border:1px solid #ddd">
         <option value="PEATONAL">PEATONAL</option><option value="MOTOCICLETA">MOTOCICLETA</option><option value="AUTOMÓVIL">AUTOMÓVIL</option><option value="CAMIONETA">CAMIONETA</option><option value="BICICLETA">BICICLETA</option>
@@ -92,7 +96,7 @@
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbxySLqltm5HnlJx7cekA48uGs9_VniNp8seYfyO2B2I9LbqDLeLh_XteFB2uWHcUzeG/exec";
+    const API = "SU_URL_DE_APPS_SCRIPT";
     let sess = {};
     let currentInmueble = "";
 
@@ -123,19 +127,33 @@
       const box = document.getElementById('box-content');
       box.innerHTML = "";
       if(r.success) {
-        let h = "";
-        if(r.tipo==="PROPIETARIO"){
+        let html = "";
+        if(r.tipo === "PROPIETARIO") {
           currentInmueble = r.data.inmueble;
-          h = `<p><b>Inmueble:</b> ${r.data.inmueble}</p><p><b>Residente:</b> ${r.data.nom1}</p>${renderContact(r.data.tel1)}`;
-        } else {
+          html += `<p><strong>Inmueble:</strong> ${r.data.inmueble}</p>`;
+          html += `<p><strong>Residente:</strong> ${r.data.nom1}</p>${renderContact(r.data.tel1)}`;
+          let otros = ""; r.data.otros.forEach((n,i)=>{ if(n) otros += `Res. ${i+2}: ${n}<br>`; });
+          if(otros) html += `<div style="margin-top:10px; font-size:0.85rem; color:#666">${otros}</div>`;
+          let vHtml = ""; r.data.vehiculos.forEach(vh=>{ if(vh.p) vHtml += `<span class="vehiculo-tag"><strong>${vh.t}:</strong> ${vh.p}</span>`; });
+          if(vHtml) html += `<div style="margin-top:10px">${vHtml}</div>`;
+        } 
+        else if(r.tipo === "VISITANTE") {
           currentInmueble = r.visita.inmueble;
-          h = `<p class="red-text"><b>VISITA ANTERIOR</b></p><p><b>Visitante:</b> ${r.visita.nombre}</p><p><b>A Inmueble:</b> ${r.visita.inmueble}</p><p><b>Obs:</b> ${r.visita.obs || 'N/A'}</p>${renderContact(r.visita.tel)}`;
+          html += `<span class="label-visita">RESULTADO: VISITA ANTERIOR</span>`;
+          html += `<p><strong>Visitante:</strong> ${r.visita.nombre}</p>${renderContact(r.visita.tel)}`;
+          html += `<p><strong>Visitó a:</strong> ${r.visita.inmueble}</p>`;
+          html += `<p><strong>Vehículo:</strong> ${r.visita.tipoV} (${r.visita.placa})</p>`;
+          html += `<p><strong>Observación:</strong> ${r.visita.obs || 'Sin observaciones'}</p>`;
+          if(r.propietario) {
+            html += `<hr style="border:0; border-top:1px solid #ccc; margin:10px 0">`;
+            html += `<p style="font-size:0.9rem"><strong>Contacto Residente:</strong> ${r.propietario.nom1}</p>${renderContact(r.propietario.tel1)}`;
+          }
         }
-        box.innerHTML = h; document.getElementById('search-results').classList.remove('hidden');
+        box.innerHTML = html; document.getElementById('search-results').classList.remove('hidden');
       } else alert(r.message);
     }
 
-    function renderContact(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" class="btn green btn-small"><i class="material-icons">chat</i></a></div>` : ""; }
+    function renderContact(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" target="_blank" class="btn green btn-small"><i class="material-icons">chat</i></a></div>` : ""; }
     function prepararFormVisita() { document.getElementById('vis-inm').value = currentInmueble; showView('view-visita'); }
     function limpiarBusqueda() { document.getElementById('search-input').value=""; document.getElementById('search-results').classList.add('hidden'); }
     function limpiarFormVisita() { ['vis-nom','vis-tel','vis-placa','vis-obs'].forEach(i=>document.getElementById(i).value=""); }
@@ -143,10 +161,10 @@
     async function guardarVisita() {
       const nom = document.getElementById('vis-nom').value.trim();
       const tel = document.getElementById('vis-tel').value;
-      if(!nom || tel.length!==10 || !tel.startsWith('3')) return alert("Nombre obligatorio y Teléfono válido (10 dígitos, empieza con 3)");
+      if(!nom || tel.length!==10 || !tel.startsWith('3')) return alert("Nombre obligatorio y Teléfono válido.");
       const d = { inm:document.getElementById('vis-inm').value, nom, tel, tipo:document.getElementById('vis-tipo').value, placa:document.getElementById('vis-placa').value, obs:document.getElementById('vis-obs').value };
       const r = await call({action:'registrarVisita', data:d, idVig:sess.id, nomVig:sess.nombre});
-      if(r.success) { alert("Registrado."); showView('view-menu'); }
+      if(r.success) { alert("Registrado con éxito."); showView('view-menu'); }
     }
   </script>
 </body>
