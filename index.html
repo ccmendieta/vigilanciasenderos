@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    /* DISEÑO ORIGINAL MANTENIDO */
     body { font-family: 'Poppins', sans-serif; background: #1a237e; color: #2c3e50; }
     .hidden { display: none; }
     .card-panel { border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 30px; }
@@ -16,16 +15,13 @@
     .btn { border-radius: 12px; text-transform: none; font-weight: 600; height: 52px; display: flex; align-items: center; justify-content: center; width: 100%; margin-bottom: 15px; }
     #loader { position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; display: none; }
     
-    /* PALETA DE COLORES REQUERIDA */
     .btn-main-nav { background-color: #1a237e !important; color: white !important; }
     .btn-buscar { background-color: #2e7d32 !important; color: white !important; }
     .btn-logout { background-color: #d32f2f !important; color: white !important; }
-    .btn-volver-menu { background-color: #ff9800 !important; color: white !important; } /* NARANJA SOLICITADO */
+    .btn-volver-menu { background-color: #ff9800 !important; color: white !important; }
     
     .result-box { background: #f5f5f5; border-radius: 12px; padding: 15px; margin-top: 20px; border-left: 5px solid #1a237e; }
     .vehiculo-tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.9rem; }
-    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type=number] { -moz-appearance: textfield; }
   </style>
 </head>
 <body>
@@ -56,28 +52,25 @@
 
     <div id="view-admin" class="hidden card-panel white center-align">
       <h5>Dashboard Administrador</h5>
-      <p class="orange-text" style="font-weight: 600;">Bienvenido Administrador</p>
-      <button class="btn btn-main-nav" onclick="alert('Módulo: Registrar Vigilante')">Registrar Vigilante</button>
-      <button class="btn btn-main-nav" onclick="alert('Módulo: Registrar Mudanza')">Registrar Mudanza</button>
-      <button class="btn btn-main-nav" onclick="alert('Módulo: Gestionar Visitas')">Gestionar Visitas</button>
+      <button class="btn btn-main-nav" onclick="alert('Próximamente')">Registrar Vigilante</button>
+      <button class="btn btn-main-nav" onclick="alert('Próximamente')">Registrar Mudanza</button>
+      <button class="btn btn-main-nav" onclick="alert('Próximamente')">Gestionar Visitas</button>
       <button class="btn btn-main-nav" onclick="showView('view-pass')">Cambiar Contraseña</button>
-      <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-        <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
-      </div>
+      <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
     </div>
 
     <div id="view-search" class="hidden card-panel white">
-      <h5 class="center-align">Búsqueda de Acceso</h5>
+      <h5 class="center-align">Registro de Ingreso</h5>
       <div class="input-field"><input id="s-input" type="text" placeholder="Inmueble o Placa" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="row">
-        <div class="col s6"><button class="btn grey lighten-2 black-text" onclick="limpiarBusquedaIngreso()">Limpiar</button></div>
+        <div class="col s6"><button class="btn grey lighten-2 black-text" onclick="limpiarIngreso()">Limpiar</button></div>
         <div class="col s6"><button class="btn btn-buscar" onclick="buscarIngreso()">Buscar</button></div>
       </div>
       <div id="s-results" class="hidden">
         <div id="s-box" class="result-box"></div>
         <button class="btn btn-main-nav" style="margin-top:20px" onclick="prepararFormVisita()">Registrar Visita</button>
       </div>
-      <button class="btn btn-volver-menu" style="margin-top:20px" onclick="showView('view-menu')">Volver al Menú</button>
+      <button class="btn btn-volver-menu" style="margin-top:20px" onclick="volverMenu()">Volver al Menú</button>
     </div>
 
     <div id="view-visita" class="hidden card-panel white">
@@ -99,33 +92,34 @@
       <h5 class="center-align">Control de Salida</h5>
       <div class="input-field"><input id="ex-input" type="text" placeholder="Inmueble o Placa" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="row">
-        <div class="col s6"><button class="btn grey lighten-2 black-text" onclick="limpiarBusquedaSalida()">Limpiar</button></div>
+        <div class="col s6"><button class="btn grey lighten-2 black-text" onclick="limpiarSalida()">Limpiar</button></div>
         <div class="col s6"><button class="btn btn-buscar" onclick="buscarSalidas()">Buscar</button></div>
       </div>
       <div id="ex-results" class="hidden"></div>
-      <button class="btn btn-volver-menu" style="margin-top:20px" onclick="showView('view-menu')">Volver al Menú</button>
+      <button class="btn btn-volver-menu" style="margin-top:20px" onclick="volverMenu()">Volver al Menú</button>
     </div>
 
     <div id="view-pass" class="hidden card-panel white">
-      <h5 class="center-align">Cambiar Contraseña</h5>
-      <div class="input-field"><input id="p-old" type="password" placeholder="Contraseña Actual"></div>
-      <div class="input-field"><input id="p-new1" type="password" placeholder="Nueva Contraseña"></div>
-      <div class="input-field"><input id="p-new2" type="password" placeholder="Repetir Nueva Contraseña"></div>
-      <button class="btn btn-main-nav" onclick="validarCambioPass()">Actualizar</button>
-      <button class="btn btn-volver-menu" onclick="regresarSegunRol()">Volver</button>
+      <h5 class="center-align">Seguridad</h5>
+      <div class="input-field"><label class="active">Contraseña Actual</label><input id="p-old" type="password" placeholder="Contraseña Actual"></div>
+      <div class="input-field"><label class="active">Nueva Contraseña</label><input id="p-new1" type="password" placeholder="Nueva Contraseña" oninput="checkPassMatch()"></div>
+      <div class="input-field"><label class="active">Repetir Nueva Contraseña</label><input id="p-new2" type="password" placeholder="Repetir Nueva Contraseña" oninput="checkPassMatch()"></div>
+      <div id="pass-msg" class="center-align" style="font-size:0.8rem; margin-bottom:10px"></div>
+      <button id="btn-update-pass" class="btn btn-main-nav disabled" onclick="ejecutarCambioPass()">Actualizar</button>
+      <button class="btn btn-volver-menu" onclick="volverMenu()">Volver al Menú</button>
     </div>
 
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbyh_sTfJq2knpL_pLUb3vemD0uBSuX4Ssw_Y1rBCnBh7PNvpowhNt2LgBBVmKBJ3SWG/exec";
+    const API = "https://script.google.com/macros/s/AKfycbzzwvHAKpyT-aQQfD1RNTqMIOC1C0SXI3NO-Knyk6zpmS8SfJK7DlpUi0oUNizheU-B/exec";
     let user = {};
     let currentInmueble = "";
 
     async function call(p) {
       document.getElementById('loader').style.display='block';
       try { const r = await fetch(API,{method:'POST',body:JSON.stringify(p)}); return await r.json(); }
-      catch(e) { alert("Error de red"); return {success:false}; }
+      catch(e) { alert("Error de conexión"); return {success:false}; }
       finally { document.getElementById('loader').style.display='none'; }
     }
 
@@ -134,23 +128,25 @@
       document.getElementById(v).classList.remove('hidden');
     }
 
-    // --- SESIÓN ---
-    async function login() {
-      const r = await call({action:'login', id:document.getElementById('l-id').value, pass:document.getElementById('l-pass').value});
-      if(r.success) {
-        user = r;
-        document.getElementById('u-nom').innerText = r.nombre;
-        showView(r.rol === 'ADMINISTRADOR' ? 'view-admin' : 'view-menu');
-      } else alert(r.message);
+    function volverMenu() {
+      limpiarIngreso(); limpiarSalida(); limpiarFormVisita();
+      limpiarPass();
+      showView(user.rol === 'ADMINISTRADOR' ? 'view-admin' : 'view-menu');
     }
 
-    async function logout() { await call({action:'logout', id:user.id, nom:user.nombre}); location.reload(); }
+    async function login() {
+      const r = await call({action:'login', id:document.getElementById('l-id').value, pass:document.getElementById('l-pass').value});
+      if(r.success) { user = r; document.getElementById('u-nom').innerText = r.nombre; volverMenu(); }
+      else alert(r.message);
+    }
 
-    // --- INGRESOS ---
+    async function logout() { location.reload(); }
+
+    // --- LÓGICA DE INGRESO ---
     async function buscarIngreso() {
       const t = document.getElementById('s-input').value;
-      if(!t) return alert("Ingrese inmueble o placa.");
-      const r = await call({action:'buscarResidente', termino:t, idVig:user.id, nomVig:user.nombre});
+      if(!t) return;
+      const r = await call({action:'buscarResidente', termino:t});
       const box = document.getElementById('s-box'); box.innerHTML = "";
       if(r.success) {
         let h = "";
@@ -160,72 +156,72 @@
           r.data.vehiculos.forEach(v=>{ if(v.p) h+=`<span class="vehiculo-tag"><b>${v.t}:</b> ${v.p}</span>`; });
         } else {
           currentInmueble = r.visita.inmueble;
-          h += `<p class="red-text"><b>VISITA ANTERIOR</b></p><p><b>Visitante:</b> ${r.visita.nombre}</p>${renderTel(r.visita.tel)}`;
-          if(r.propietario) h += `<hr><p style="font-size:0.85rem"><b>Contacto Residente:</b> ${r.propietario.nom1}</p>${renderTel(r.propietario.tel1)}`;
+          h += `<p class="red-text"><b>VISITA ACTIVA DETECTADA</b></p>
+                <p><b>Inmueble:</b> ${r.visita.inm}</p><p><b>Visitante:</b> ${r.visita.nom}</p>
+                <p><b>Teléfono:</b> ${r.visita.tel}</p><p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>
+                <p><b>Observación:</b> ${r.visita.obs}</p>
+                <hr><p style="font-size:0.85rem"><b>Anfitrión:</b> ${r.propietario.nom}</p>${renderTel(r.propietario.tel)}`;
         }
         box.innerHTML = h; document.getElementById('s-results').classList.remove('hidden');
       } else alert(r.message);
     }
 
     function renderTel(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small" style="width:60px"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" target="_blank" class="btn green btn-small" style="width:60px"><i class="material-icons">chat</i></a></div>` : ""; }
-
     function prepararFormVisita() { document.getElementById('v-inm').value = currentInmueble; showView('view-visita'); }
-
     async function guardarVisita() {
-      const n = document.getElementById('v-nom').value.trim();
-      const t = document.getElementById('v-tel').value;
-      if(!n || t.length !== 10) return alert("Nombre y Teléfono (10 dígitos) obligatorios.");
-      const d = { inm:currentInmueble, nom:n, tel:t, tipo:document.getElementById('v-tipo').value, placa:document.getElementById('v-placa').value, obs:document.getElementById('v-obs').value };
+      const d = { inm:currentInmueble, nom:document.getElementById('v-nom').value, tel:document.getElementById('v-tel').value, tipo:document.getElementById('v-tipo').value, placa:document.getElementById('v-placa').value, obs:document.getElementById('v-obs').value };
       const r = await call({action:'registrarVisita', data:d, idVig:user.id, nomVig:user.nombre});
-      if(r.success) { alert("Ingreso Guardado."); limpiarFormVisita(); showView('view-menu'); }
+      if(r.success) { alert("Ingreso registrado."); showView('view-search'); limpiarIngreso(); }
     }
 
-    function limpiarFormVisita() { ['v-nom','v-tel','v-placa','v-obs'].forEach(i=>document.getElementById(i).value=""); document.getElementById('v-tipo').selectedIndex=0; }
-    function limpiarBusquedaIngreso() { document.getElementById('s-input').value=""; document.getElementById('s-results').classList.add('hidden'); }
-
-    // --- SALIDAS (RECONSTRUIDO SEGÚN SOLICITUD) ---
+    // --- LÓGICA DE SALIDA ---
     async function buscarSalidas() {
-      const t = document.getElementById('ex-input').value;
-      if(!t) return;
+      const t = document.getElementById('ex-input').value; if(!t) return;
       const r = await call({action:'buscarVisitasActivas', termino:t});
       const resDiv = document.getElementById('ex-results'); resDiv.innerHTML = "";
       if(r.success && r.data.length > 0) {
         r.data.forEach(v => {
           resDiv.innerHTML += `
             <div class="result-box">
-              <p><b>Inmueble:</b> ${v.inm}</p>
-              <p><b>Visitante:</b> ${v.nom}</p>
-              <p><b>Teléfono:</b> ${v.tel}</p>
-              <p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p>
-              <p><b>Ingreso:</b> ${v.fechaI} | ${v.horaI}</p>
-              <p><b>Observación:</b> ${v.obs || 'N/A'}</p>
+              <p><b>Inmueble:</b> ${v.inm}</p><p><b>Visitante:</b> ${v.nom}</p><p><b>Teléfono:</b> ${v.tel}</p>
+              <p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p><p><b>Ingreso:</b> ${v.fechaI} | ${v.horaI}</p>
+              <p><b>Observación:</b> ${v.obs}</p>
               <button class="btn btn-buscar" onclick="confirmarSalida(${v.fila})">Confirmar Salida</button>
             </div>`;
         });
         resDiv.classList.remove('hidden');
-      } else alert("No se encontraron visitas activas.");
+      } else alert("No hay visitas activas.");
     }
 
     async function confirmarSalida(f) {
       const r = await call({action:'registrarSalida', visitaId:f, idVig:user.id, nomVig:user.nombre});
-      if(r.success) { alert("Salida Registrada con éxito."); buscarSalidas(); }
+      if(r.success) { alert("Salida registrada."); buscarSalidas(); }
     }
 
-    function limpiarBusquedaSalida() { document.getElementById('ex-input').value=""; document.getElementById('ex-results').classList.add('hidden'); }
+    // --- LIMPIEZA ---
+    function limpiarIngreso() { document.getElementById('s-input').value=""; document.getElementById('s-results').classList.add('hidden'); document.getElementById('s-box').innerHTML=""; }
+    function limpiarSalida() { document.getElementById('ex-input').value=""; document.getElementById('ex-results').classList.add('hidden'); document.getElementById('ex-results').innerHTML=""; }
+    function limpiarFormVisita() { ['v-nom','v-tel','v-placa','v-obs'].forEach(i=>document.getElementById(i).value=""); document.getElementById('v-tipo').selectedIndex=0; }
+    function limpiarPass() { ['p-old','p-new1','p-new2'].forEach(i=>document.getElementById(i).value=""); checkPassMatch(); }
 
-    // --- PASS ---
-    function validarCambioPass() {
+    // --- PASS VALIDATION ---
+    function checkPassMatch() {
       const n1 = document.getElementById('p-new1').value;
-      if(n1 !== document.getElementById('p-new2').value) return alert("Las contraseñas no coinciden.");
-      if(!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(n1)) return alert("Requisitos: 8 caracteres, Mayúscula, Minúscula y Número.");
-      ejecutarCambioPass(n1);
+      const n2 = document.getElementById('p-new2').value;
+      const btn = document.getElementById('btn-update-pass');
+      const msg = document.getElementById('pass-msg');
+      if(n1 && n2 && n1 === n2 && /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(n1)) {
+        btn.classList.remove('disabled'); msg.innerText = "✓ Contraseña válida"; msg.className = "green-text center-align";
+      } else {
+        btn.classList.add('disabled'); msg.innerText = "Las contraseñas deben coincidir y ser seguras."; msg.className = "red-text center-align";
+      }
     }
-    async function ejecutarCambioPass(nP) {
-      const r = await call({action:'cambiarPass', id:user.id, oldP:document.getElementById('p-old').value, newP:nP});
-      if(r.success) { alert("Contraseña actualizada."); regresarSegunRol(); }
+
+    async function ejecutarCambioPass() {
+      const r = await call({action:'cambiarPass', id:user.id, oldP:document.getElementById('p-old').value, newP:document.getElementById('p-new1').value});
+      if(r.success) { alert("Actualizada."); volverMenu(); }
       else alert(r.message);
     }
-    function regresarSegunRol() { showView(user.rol === 'ADMINISTRADOR' ? 'view-admin' : 'view-menu'); }
   </script>
 </body>
 </html>
