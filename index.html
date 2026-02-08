@@ -12,193 +12,142 @@
     .hidden { display: none; }
     .card-panel { border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 30px; }
     .brand-logo { color: #1a237e; font-weight: 600; font-size: 1.5rem; }
-    .btn { border-radius: 12px; text-transform: none; font-weight: 600; height: 50px; display: flex; align-items: center; justify-content: center; }
+    .btn { border-radius: 12px; text-transform: none; font-weight: 600; height: 52px; display: flex; align-items: center; justify-content: center; width: 100%; margin-bottom: 15px; }
     #loader { position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; display: none; }
     .result-box { background: #f5f5f5; border-radius: 12px; padding: 15px; margin-top: 20px; border-left: 5px solid #1a237e; }
-    .vehiculo-tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.9rem; }
     
-    /* Botones específicos */
+    /* Botones Solicitados */
+    .btn-main-nav { background-color: #1a237e !important; color: white !important; } /* Azul profundo */
     .btn-buscar { background-color: #2e7d32 !important; color: white !important; }
-    .btn-whatsapp { background-color: #25d366 !important; min-width: 60px; }
-    .btn-call { background-color: #2196f3 !important; min-width: 60px; }
     .btn-logout { background-color: #d32f2f !important; color: white !important; }
     .btn-limpiar { background-color: #d32f2f !important; }
     .btn-volver { background-color: #9e9e9e !important; }
     
-    .label-visita { font-weight: 600; color: #d32f2f; display: block; margin-bottom: 5px; }
-    
-    /* Quitar flechas de input number */
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
-
-    textarea.materialize-textarea { min-height: 150px; }
+    textarea.materialize-textarea { min-height: 100px; }
   </style>
 </head>
 <body>
-  <div class="progress" id="loader" style="margin:0;"><div class="indeterminate orange"></div></div>
+  <div class="progress" id="loader"><div class="indeterminate orange"></div></div>
 
-  <div class="container" style="max-width: 450px; margin-top: 8vh;">
+  <div class="container" style="max-width: 450px; margin-top: 5vh; padding-bottom: 20px;">
     
     <div id="view-login" class="card-panel center-align white">
       <i class="material-icons large indigo-text">security</i>
       <h1 class="brand-logo">Control Vigilancia</h1>
-      <p class="grey-text">Senderos de las Acacias</p>
+      <p class="grey-text">Acceso Autorizado</p>
       <div class="input-field"><input id="v-id" type="text" placeholder="ID Vigilante" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="input-field"><input id="v-pass" type="password" placeholder="Contraseña"></div>
-      <button class="btn indigo darken-4 white-text w100" style="width:100%" onclick="loginVigilante()">Acceder</button>
+      <button class="btn indigo darken-4 white-text" onclick="loginVigilante()">Acceder</button>
+    </div>
+
+    <div id="view-menu" class="hidden card-panel white center-align">
+      <h5 style="margin-bottom: 30px;">Panel de Gestión</h5>
+      <p class="blue-text" style="font-weight: 600; margin-bottom: 30px;">Vigilante: <span id="vig-nombre-menu"></span></p>
+      
+      <button class="btn btn-main-nav" onclick="showView('view-search')">Registrar Ingreso</button>
+      <button class="btn btn-main-nav" onclick="alert('Funcionalidad próximamente: Registrar Salida')">Registrar Salida</button>
+      <button class="btn btn-main-nav" onclick="alert('Funcionalidad próximamente: Validar Mudanza')">Validar Mudanza</button>
+      <button class="btn btn-main-nav" onclick="alert('Funcionalidad próximamente: Cambiar Contraseña')">Cambiar Contraseña</button>
+      
+      <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
+      </div>
     </div>
 
     <div id="view-search" class="hidden card-panel white">
-      <div class="center-align"><span class="blue-text" style="font-weight: 600;">Vigilante: <span id="vig-nombre"></span></span></div>
-      <h5 class="center-align" style="margin-bottom: 25px;">Consulta de Acceso</h5>
+      <h5 class="center-align">Búsqueda de Acceso</h5>
       <div class="input-field">
         <input id="search-input" type="text" placeholder="Inmueble o Placa" oninput="this.value=this.value.toUpperCase()">
       </div>
       <div class="row">
-        <div class="col s6"><button class="btn grey lighten-2 black-text w100" style="width:100%" onclick="limpiar()">Limpiar</button></div>
-        <div class="col s6"><button class="btn btn-buscar w100" style="width:100%" onclick="buscar()">Buscar</button></div>
+        <div class="col s6"><button class="btn grey lighten-2 black-text" onclick="limpiarBusqueda()">Limpiar</button></div>
+        <div class="col s6"><button class="btn btn-buscar" onclick="buscar()">Buscar</button></div>
       </div>
-
       <div id="search-results" class="hidden">
         <div id="box-content" class="result-box"></div>
-        <button id="btn-show-visita" class="btn indigo darken-4 white-text w100" style="width:100%; margin-top:20px" onclick="prepararFormVisita()">Registrar Visita</button>
+        <button class="btn indigo darken-4 white-text" style="margin-top:20px" onclick="prepararFormVisita()">Registrar Visita</button>
       </div>
-
-      <button class="btn btn-logout w100" style="width:100%; margin-top:20px" onclick="logout()">Cerrar Sesión</button>
+      <button class="btn btn-volver white-text" style="margin-top:20px" onclick="showView('view-menu')">Volver al Menú</button>
     </div>
 
     <div id="view-visita" class="hidden card-panel white">
       <h5 class="center-align">Nuevo Registro de Visita</h5>
-      <div class="input-field">
-        <input id="vis-inm" type="text" readonly style="color: #757575; border-bottom: 1px dotted #ccc;">
-        <label class="active">Inmueble a visitar</label>
-      </div>
-      <div class="input-field"><input id="vis-nom" type="text" placeholder="NOMBRE DEL VISITANTE" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field"><input id="vis-inm" type="text" readonly><label class="active">Inmueble a visitar</label></div>
+      <div class="input-field"><input id="vis-nom" type="text" placeholder="NOMBRE" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="input-field"><input id="vis-tel" type="number" placeholder="TELÉFONO (Ej: 3001234567)"></div>
-      
-      <label>Tipo Vehículo</label>
+      <label>Vehículo</label>
       <select id="vis-tipo" class="browser-default" style="margin-bottom:20px; border-radius:8px; border:1px solid #ddd">
-        <option value="PEATONAL">PEATONAL</option>
-        <option value="MOTOCICLETA">MOTOCICLETA</option>
-        <option value="AUTOMÓVIL">AUTOMÓVIL</option>
-        <option value="CAMIONETA">CAMIONETA</option>
-        <option value="BICICLETA">BICICLETA</option>
+        <option value="PEATONAL">PEATONAL</option><option value="MOTOCICLETA">MOTOCICLETA</option><option value="AUTOMÓVIL">AUTOMÓVIL</option><option value="CAMIONETA">CAMIONETA</option><option value="BICICLETA">BICICLETA</option>
       </select>
-
-      <div class="input-field"><input id="vis-placa" type="text" placeholder="PLACA VEHÍCULO" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="input-field"><textarea id="vis-obs" class="materialize-textarea" placeholder="OBSERVACIONES DE INGRESO..."></textarea></div>
-      
-      <button class="btn green darken-2 white-text w100" style="width:100%" onclick="guardarVisita()">Guardar Registro</button>
-      
-      <div class="row" style="margin-top:15px">
-        <div class="col s6"><button class="btn btn-limpiar white-text w100" style="width:100%" onclick="limpiarFormVisita()">Limpiar</button></div>
-        <div class="col s6"><button class="btn btn-volver white-text w100" style="width:100%" onclick="showView('view-search')">Volver</button></div>
+      <div class="input-field"><input id="vis-placa" type="text" placeholder="PLACA" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field"><textarea id="vis-obs" class="materialize-textarea" placeholder="OBSERVACIONES..."></textarea></div>
+      <button class="btn green darken-2 white-text" onclick="guardarVisita()">Guardar Registro</button>
+      <div class="row" style="margin-top:10px">
+        <div class="col s6"><button class="btn btn-limpiar white-text" onclick="limpiarFormVisita()">Limpiar</button></div>
+        <div class="col s6"><button class="btn btn-volver white-text" onclick="showView('view-search')">Volver</button></div>
       </div>
     </div>
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbzKoAO3NRanwthTWm_w7OqEUavTCTOFcnssIu40dYuJUWDdSLcuJplOxt4lz_sMGmfZ/exec";
+    const API = "https://script.google.com/macros/s/AKfycbxySLqltm5HnlJx7cekA48uGs9_VniNp8seYfyO2B2I9LbqDLeLh_XteFB2uWHcUzeG/exec";
     let sess = {};
     let currentInmueble = "";
 
     async function call(p) {
       document.getElementById('loader').style.display='block';
-      try {
-        const r = await fetch(API,{method:'POST',body:JSON.stringify(p)});
-        return await r.json();
-      } catch(e) { alert("Error de conexión"); return {success:false}; }
+      try { const r = await fetch(API,{method:'POST',body:JSON.stringify(p)}); return await r.json(); }
+      catch(e) { alert("Error de conexión"); return {success:false}; }
       finally { document.getElementById('loader').style.display='none'; }
     }
 
     async function loginVigilante() {
-      const id = document.getElementById('v-id').value;
-      const pass = document.getElementById('v-pass').value;
-      const r = await call({action:'loginVigilante', id, pass});
-      if(r.success) { sess = r; document.getElementById('vig-nombre').innerText = r.nombre; showView('view-search'); }
+      const r = await call({action:'loginVigilante', id:document.getElementById('v-id').value, pass:document.getElementById('v-pass').value});
+      if(r.success) { sess = r; document.getElementById('vig-nombre-menu').innerText = r.nombre; showView('view-menu'); }
       else alert(r.message);
     }
 
-    async function logout() {
-      await call({action:'logoutVigilante', id: sess.id, nom: sess.nombre});
-      location.reload();
+    async function logout() { await call({action:'logoutVigilante', id: sess.id, nom: sess.nombre}); location.reload(); }
+
+    function showView(v) { 
+      ['view-login','view-menu','view-search','view-visita'].forEach(i=>document.getElementById(i).classList.add('hidden')); 
+      document.getElementById(v).classList.remove('hidden'); 
     }
 
     async function buscar() {
       const t = document.getElementById('search-input').value;
       if(!t) return alert("Ingrese dato.");
       const r = await call({action:'buscarResidente', termino:t, idVig:sess.id, nomVig:sess.nombre});
-      
       const box = document.getElementById('box-content');
       box.innerHTML = "";
-
       if(r.success) {
-        let html = "";
-        if(r.tipo === "PROPIETARIO") {
+        let h = "";
+        if(r.tipo==="PROPIETARIO"){
           currentInmueble = r.data.inmueble;
-          html += `<p><strong>Inmueble:</strong> ${r.data.inmueble}</p>`;
-          html += `<p><strong>Residente:</strong> ${r.data.nom1}</p>${renderContactButtons(r.data.tel1)}`;
-          let otros = ""; r.data.otros.forEach((n,i)=>{ if(n) otros += `Res. ${i+2}: ${n}<br>`; });
-          if(otros) html += `<div style="margin-top:10px; font-size:0.85rem; color:#666">${otros}</div>`;
-          let vHtml = ""; r.data.vehiculos.forEach(vh=>{ if(vh.p) vHtml += `<span class="vehiculo-tag"><strong>${vh.t}:</strong> ${vh.p}</span>`; });
-          if(vHtml) html += `<div style="margin-top:10px">${vHtml}</div>`;
-        } 
-        else if(r.tipo === "VISITANTE") {
+          h = `<p><b>Inmueble:</b> ${r.data.inmueble}</p><p><b>Residente:</b> ${r.data.nom1}</p>${renderContact(r.data.tel1)}`;
+        } else {
           currentInmueble = r.visita.inmueble;
-          html += `<span class="label-visita">RESULTADO: VISITA ANTERIOR</span>`;
-          html += `<p><strong>Visitante:</strong> ${r.visita.nombre}</p>${renderContactButtons(r.visita.tel || r.visita.tel1)}`;
-          html += `<p><strong>Visitó a:</strong> ${r.visita.inmueble}</p>`;
-          html += `<p><strong>Vehículo:</strong> ${r.visita.tipoV} (${r.visita.placa})</p>`;
-          html += `<p><strong>Observación:</strong> ${r.visita.obs || 'Sin observaciones'}</p>`;
-          
-          if(r.propietario) {
-            html += `<hr style="border:0; border-top:1px solid #ccc; margin:10px 0">`;
-            html += `<p style="font-size:0.9rem"><strong>Contacto Residente:</strong> ${r.propietario.nom1}</p>${renderContactButtons(r.propietario.tel1)}`;
-          }
+          h = `<p class="red-text"><b>VISITA ANTERIOR</b></p><p><b>Visitante:</b> ${r.visita.nombre}</p><p><b>A Inmueble:</b> ${r.visita.inmueble}</p><p><b>Obs:</b> ${r.visita.obs || 'N/A'}</p>${renderContact(r.visita.tel)}`;
         }
-        box.innerHTML = html;
-        document.getElementById('search-results').classList.remove('hidden');
+        box.innerHTML = h; document.getElementById('search-results').classList.remove('hidden');
       } else alert(r.message);
     }
 
-    function renderContactButtons(tel) {
-      if(!tel) return "";
-      return `<div style="display:flex; gap:10px; margin-top:5px;"><a href="tel:${tel}" class="btn btn-call white-text btn-small"><i class="material-icons">phone</i></a><a href="https://wa.me/57${tel}" target="_blank" class="btn btn-whatsapp white-text btn-small"><i class="material-icons">chat</i></a></div>`;
-    }
-
-    function prepararFormVisita() {
-      document.getElementById('vis-inm').value = currentInmueble;
-      showView('view-visita');
-    }
+    function renderContact(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" class="btn green btn-small"><i class="material-icons">chat</i></a></div>` : ""; }
+    function prepararFormVisita() { document.getElementById('vis-inm').value = currentInmueble; showView('view-visita'); }
+    function limpiarBusqueda() { document.getElementById('search-input').value=""; document.getElementById('search-results').classList.add('hidden'); }
+    function limpiarFormVisita() { ['vis-nom','vis-tel','vis-placa','vis-obs'].forEach(i=>document.getElementById(i).value=""); }
 
     async function guardarVisita() {
       const nom = document.getElementById('vis-nom').value.trim();
-      const tel = document.getElementById('vis-tel').value.toString();
-      
-      if(!nom) return alert("El nombre es obligatorio.");
-      if(tel.length !== 10 || !tel.startsWith("3")) return alert("El teléfono debe iniciar con 3 y tener 10 dígitos.");
-      
-      const data = {
-        inm: document.getElementById('vis-inm').value,
-        nom: nom,
-        tel: tel,
-        tipo: document.getElementById('vis-tipo').value,
-        placa: document.getElementById('vis-placa').value,
-        obs: document.getElementById('vis-obs').value
-      };
-      
-      const r = await call({action:'registrarVisita', data, idVig:sess.id, nomVig:sess.nombre});
-      if(r.success) { alert("Visita guardada."); limpiarFormVisita(); showView('view-search'); }
+      const tel = document.getElementById('vis-tel').value;
+      if(!nom || tel.length!==10 || !tel.startsWith('3')) return alert("Nombre obligatorio y Teléfono válido (10 dígitos, empieza con 3)");
+      const d = { inm:document.getElementById('vis-inm').value, nom, tel, tipo:document.getElementById('vis-tipo').value, placa:document.getElementById('vis-placa').value, obs:document.getElementById('vis-obs').value };
+      const r = await call({action:'registrarVisita', data:d, idVig:sess.id, nomVig:sess.nombre});
+      if(r.success) { alert("Registrado."); showView('view-menu'); }
     }
-
-    function limpiarFormVisita() {
-      ['vis-nom','vis-tel','vis-placa','vis-obs'].forEach(id => document.getElementById(id).value = "");
-      document.getElementById('vis-tipo').selectedIndex = 0;
-    }
-
-    function limpiar() { document.getElementById('search-input').value=""; document.getElementById('search-results').classList.add('hidden'); }
-    function showView(v) { ['view-login','view-search','view-visita'].forEach(i=>document.getElementById(i).classList.add('hidden')); document.getElementById(v).classList.remove('hidden'); }
   </script>
 </body>
 </html>
