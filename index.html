@@ -45,6 +45,17 @@
       <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
     </div>
 
+    <div id="view-admin" class="hidden card-panel white center-align">
+      <h5>Panel Administrador</h5>
+      <p class="red-text" id="u-nom-admin"></p>
+      <button class="btn btn-main-nav" onclick="showView('view-search')">Registrar Ingreso</button>
+      <button class="btn btn-main-nav" onclick="showView('view-exit')">Registrar Salida</button>
+      <button class="btn btn-main-nav" onclick="alert('Próximamente: Gestión de Vigilantes')">Gestionar Vigilantes</button>
+      <button class="btn btn-main-nav" onclick="alert('Próximamente: Reportes')">Ver Reportes</button>
+      <button class="btn btn-main-nav" onclick="showView('view-pass')">Cambiar Contraseña</button>
+      <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
+    </div>
+
     <div id="view-search" class="hidden card-panel white">
       <h5 class="center-align">Registro de Ingreso</h5>
       <div class="input-field"><input id="s-input" type="text" placeholder="Inmueble o Placa" oninput="this.value=this.value.toUpperCase()"></div>
@@ -97,112 +108,87 @@
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbxJ3tJXJ1vTfiBFwrFmO_Ock-Bair4wiO5BZMkkjuZvZ16HfkXaziBIMx8ZLaYgZQuU/exec";
+    const API = "https://script.google.com/macros/s/AKfycbxmtFZPN0F-wYX7IMxEA8MT62CiQOonjaa8iWkkhQPJ0RVvjLhHJ1w1vpRes0STO6Cq/exec";
     let user = {};
     let currentInmueble = "";
 
     async function call(p) {
       document.getElementById('loader').style.display='block';
       try { const r = await fetch(API,{method:'POST',body:JSON.stringify(p)}); return await r.json(); }
-      catch(e) { alert("Error de conexión"); return {success:false}; }
+      catch(e) { alert("Error"); return {success:false}; }
       finally { document.getElementById('loader').style.display='none'; }
     }
 
     function showView(v) {
-      ['view-login','view-menu','view-search','view-visita','view-exit','view-pass'].forEach(i=>document.getElementById(i).classList.add('hidden'));
+      ['view-login','view-menu','view-admin','view-search','view-visita','view-exit','view-pass'].forEach(i=>document.getElementById(i).classList.add('hidden'));
       document.getElementById(v).classList.remove('hidden');
     }
 
     function volverMenu() {
-      limpiarPantallaIngreso();
-      limpiarPantallaSalida();
-      limpiarFormVisita();
-      showView(user.rol === 'ADMINISTRADOR' ? 'view-admin' : 'view-menu');
+      limpiarPantallaIngreso(); limpiarPantallaSalida(); limpiarFormVisita();
+      if(user.rol === 'ADMINISTRADOR') {
+        document.getElementById('u-nom-admin').innerText = "Admin: " + user.nombre;
+        showView('view-admin');
+      } else {
+        document.getElementById('u-nom').innerText = "Vigilante: " + user.nombre;
+        showView('view-menu');
+      }
     }
 
-    // --- REGISTRO DE INGRESO (LÓGICA RESTAURADA) ---
+    async function login() {
+      const r = await call({action:'login', id:document.getElementById('l-id').value, pass:document.getElementById('l-pass').value});
+      if(r.success) { user = r; volverMenu(); }
+      else alert(r.message);
+    }
+
+    function logout() { location.reload(); }
+
     async function buscarIngreso() {
       const t = document.getElementById('s-input').value; if(!t) return;
       const r = await call({action:'buscarResidente', termino:t});
       const box = document.getElementById('s-box'); box.innerHTML = "";
-      
       if(r.success) {
         let h = "";
         if(r.tipo === "PROPIETARIO") {
           currentInmueble = r.data.inmueble;
-          h += `<h6><b>DATOS PROPIETARIOS/RESIDENTES</b></h6>`;
-          h += `<p><b>Ppal:</b> ${r.data.nom1} - ${r.data.tel1}</p>${renderTel(r.data.tel1)}`;
+          h += `<h6><b>DATOS RESIDENTES</b></h6><p><b>Ppal:</b> ${r.data.nom1} - ${r.data.tel1}</p>${renderTel(r.data.tel1)}`;
           if(r.data.residentes.length) h += `<p><b>Otros:</b> ${r.data.residentes.join(', ')}</p>`;
-          h += `<hr><h6><b>VEHÍCULOS REGISTRADOS</b></h6>`;
+          h += `<hr><h6><b>VEHÍCULOS</b></h6>`;
           r.data.vehiculos.forEach(v => h += `<span class="tag">${v.t}: ${v.p}</span>`);
         } else {
           currentInmueble = r.visita.inm;
-          h += `<h6 class="red-text"><b>VISITA ACTIVA DETECTADA</b></h6>`;
-          h += `<p><b>Ingreso:</b> ${r.visita.fecha} | ${r.visita.hora}</p>
-                <p><b>Inmueble:</b> ${r.visita.inm}</p><p><b>Visitante:</b> ${r.visita.nom}</p>
-                <p><b>Teléfono:</b> ${r.visita.tel}</p><p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>
-                <p><b>Obs:</b> ${r.visita.obs}</p>
-                <hr><h6><b>ANFITRIÓN (PROPIETARIO)</b></h6>
-                <p><b>Ppal:</b> ${r.propietario.nom} - ${r.propietario.tel}</p>${renderTel(r.propietario.tel)}`;
+          h += `<h6 class="red-text"><b>VISITA ACTIVA</b></h6><p><b>Ingreso:</b> ${r.visita.fecha} | ${r.visita.hora}</p><p><b>Inmueble:</b> ${r.visita.inm}</p><p><b>Visitante:</b> ${r.visita.nom}</p><p><b>Tel:</b> ${r.visita.tel}</p><p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p><p><b>Obs:</b> ${r.visita.obs}</p><hr><h6><b>ANFITRIÓN</b></h6><p><b>Ppal:</b> ${r.propietario.nom} - ${r.propietario.tel}</p>${renderTel(r.propietario.tel)}`;
         }
         box.innerHTML = h; document.getElementById('s-results').classList.remove('hidden');
       } else alert(r.message);
     }
 
-    // --- REGISTRO DE SALIDA (LÓGICA RESTAURADA) ---
     async function buscarSalidas() {
       const t = document.getElementById('ex-input').value; if(!t) return;
       const r = await call({action:'buscarVisitasActivas', termino:t});
       const resDiv = document.getElementById('ex-results'); resDiv.innerHTML = "";
       if(r.success && r.data.length > 0) {
         r.data.forEach(v => {
-          resDiv.innerHTML += `
-            <div class="result-box">
-              <p><b>Ingreso:</b> ${v.fecha} | ${v.hora}</p>
-              <p><b>Inmueble:</b> ${v.inm}</p><p><b>Visitante:</b> ${v.nom}</p>
-              <p><b>Teléfono:</b> ${v.tel}</p><p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p>
-              <p><b>Observación:</b> ${v.obs}</p>
-              <button class="btn btn-buscar" onclick="confirmarSalida(${v.fila})">Confirmar Salida</button>
-            </div>`;
+          resDiv.innerHTML += `<div class="result-box"><p><b>Ingreso:</b> ${v.fecha} | ${v.hora}</p><p><b>Inmueble:</b> ${v.inm}</p><p><b>Visitante:</b> ${v.nom}</p><p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p><button class="btn btn-buscar" onclick="confirmarSalida(${v.fila})">Confirmar Salida</button></div>`;
         });
         resDiv.classList.remove('hidden');
-      } else alert("No se encontraron visitas activas.");
+      } else alert("No hay visitas activas.");
     }
 
-    // --- LIMPIEZA TOTAL ---
-    function limpiarPantallaIngreso() {
-      document.getElementById('s-input').value = "";
-      document.getElementById('s-box').innerHTML = "";
-      document.getElementById('s-results').classList.add('hidden');
-    }
-    function limpiarPantallaSalida() {
-      document.getElementById('ex-input').value = "";
-      document.getElementById('ex-results').innerHTML = "";
-      document.getElementById('ex-results').classList.add('hidden');
-    }
-    function limpiarFormVisita() {
-      ['v-nom','v-tel','v-placa','v-obs'].forEach(id => document.getElementById(id).value = "");
-      document.getElementById('v-tipo').selectedIndex = 0;
-    }
-    function cancelarVisita() { limpiarFormVisita(); showView('view-search'); }
-
-    // --- FUNCIONES CORE ---
-    async function login() {
-      const r = await call({action:'login', id:document.getElementById('l-id').value, pass:document.getElementById('l-pass').value});
-      if(r.success) { user = r; document.getElementById('u-nom').innerText = "Vigilante: " + r.nombre; volverMenu(); }
-      else alert(r.message);
-    }
-    function logout() { location.reload(); }
     function renderTel(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small" style="width:50px"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" target="_blank" class="btn green btn-small" style="width:50px"><i class="material-icons">chat</i></a></div>` : ""; }
+    function limpiarPantallaIngreso() { document.getElementById('s-input').value=""; document.getElementById('s-box').innerHTML=""; document.getElementById('s-results').classList.add('hidden'); }
+    function limpiarPantallaSalida() { document.getElementById('ex-input').value=""; document.getElementById('ex-results').innerHTML=""; document.getElementById('ex-results').classList.add('hidden'); }
+    function limpiarFormVisita() { ['v-nom','v-tel','v-placa','v-obs'].forEach(id => document.getElementById(id).value = ""); document.getElementById('v-tipo').selectedIndex = 0; }
+    function cancelarVisita() { limpiarFormVisita(); showView('view-search'); }
     function prepararFormVisita() { document.getElementById('v-inm').value = currentInmueble; showView('view-visita'); }
     async function guardarVisita() {
       const d = { inm: currentInmueble, nom: document.getElementById('v-nom').value, tel: document.getElementById('v-tel').value, tipo: document.getElementById('v-tipo').value, placa: document.getElementById('v-placa').value, obs: document.getElementById('v-obs').value };
       const r = await call({action:'registrarVisita', data:d, idVig:user.id, nomVig:user.nombre});
-      if(r.success) { alert("Ingreso Guardado"); limpiarFormVisita(); limpiarPantallaIngreso(); showView('view-search'); }
+      if(r.success) { alert("Guardado"); volverMenu(); }
     }
     async function confirmarSalida(f) {
-      const r = await call({action:'registrarSalida', visitaId:f, idVig:user.id, nomVig:user.nombre});
-      if(r.success) { alert("Salida Registrada"); buscarSalidas(); }
+      const r = await call({action:'registrarSalida', visitaId:f});
+      if(r.success) { alert("Salida OK"); buscarSalidas(); }
     }
     function checkPassMatch() {
       const n1 = document.getElementById('p-new1').value, n2 = document.getElementById('p-new2').value;
