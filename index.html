@@ -20,6 +20,7 @@
     .btn-volver-menu { background-color: #ff9800 !important; color: white !important; }
     .result-box { background: #f5f5f5; border-radius: 12px; padding: 15px; margin-top: 20px; border-left: 5px solid #1a237e; }
     .tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.85rem; }
+    .input-label-login { font-weight: 600; color: #1a237e; display: block; text-align: left; margin-bottom: 5px; }
   </style>
 </head>
 <body>
@@ -30,8 +31,14 @@
     <div id="view-login" class="card-panel center-align white">
       <i class="material-icons large indigo-text">security</i>
       <h1 class="brand-logo">Control Vigilancia</h1>
-      <div class="input-field"><input id="l-id" type="text" placeholder="ID Vigilante" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="input-field"><input id="l-pass" type="password" placeholder="Contraseña"></div>
+      <div class="input-field">
+        <span class="input-label-login">Usuario:</span>
+        <input id="l-id" type="text" placeholder="ID Vigilante" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="input-field">
+        <span class="input-label-login">Contraseña:</span>
+        <input id="l-pass" type="password" placeholder="Contraseña">
+      </div>
       <button class="btn btn-main-nav" onclick="login()">Acceder</button>
     </div>
 
@@ -107,14 +114,18 @@
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbzp0w4S2Atn_fXNVTJ8wI1FMkaAkMfKU9Ee4toE0FBE2wEVk6_ebhX4Anlx7Vxftlxp/exec";
+    /**
+     * SENDEROS DE LAS ACACIAS - FRONTEND V16.1
+     * Lógica operativa integrada con Logs y Botones de Contacto para Visitantes.
+     */
+    const API = "https://script.google.com/macros/s/AKfycbwLtiaGvVS7dNxyp6x52Qvb5LPgJ8wB8RUBx3b6e791HbsiJ0DT-AHEE1zd5QI3xOiI/exec";
     let user = {};
     let currentInmueble = "";
 
     async function call(p) {
       document.getElementById('loader').style.display='block';
       try { const r = await fetch(API,{method:'POST',body:JSON.stringify(p)}); return await r.json(); }
-      catch(e) { alert("Error"); return {success:false}; }
+      catch(e) { alert("Error de conexión"); return {success:false}; }
       finally { document.getElementById('loader').style.display='none'; }
     }
 
@@ -162,10 +173,11 @@
           currentInmueble = r.visita.inm;
           h += `<h6 class="red-text"><b>VISITA ACTIVA DETECTADA</b></h6>
                 <p><b>Ingreso:</b> ${r.visita.fechaI} | ${r.visita.horaI}</p>
-                <p><b>Inmueble:</b> ${r.visita.inm}</p><p><b>Visitante:</b> ${r.visita.nom}</p>
-                <p><b>Tel:</b> ${r.visita.tel}</p><p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>
+                <p><b>Visitante:</b> ${r.visita.nom}</p>
+                <p><b>Tel:</b> ${r.visita.tel}</p>${renderTel(r.visita.tel)}
+                <p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>
                 <p><b>Obs:</b> ${r.visita.obs}</p>
-                <hr><h6><b>CONTACTAR RESIDENTE</b></h6>
+                <hr><h6><b>ANFITRIÓN (PROPIETARIO)</b></h6>
                 <p><b>Ppal:</b> ${r.propietario.nom} - ${r.propietario.tel}</p>${renderTel(r.propietario.tel)}`;
         }
         box.innerHTML = h; document.getElementById('s-results').classList.remove('hidden');
@@ -182,7 +194,8 @@
             <div class="result-box">
               <p><b>Fecha:</b> ${v.fechaI} | <b>Hora:</b> ${v.horaI}</p>
               <p><b>Inmueble:</b> ${v.inm}</p><p><b>Nombre:</b> ${v.nom}</p>
-              <p><b>Tel:</b> ${v.tel}</p><p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p>
+              <p><b>Tel:</b> ${v.tel}</p>${renderTel(v.tel)}
+              <p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p>
               <p><b>Obs:</b> ${v.obs}</p>
               <button class="btn btn-buscar" onclick="confirmarSalida(${v.fila})">Confirmar Salida</button>
             </div>`;
@@ -191,26 +204,33 @@
       } else alert("No se encontraron visitas activas.");
     }
 
+    // FUNCIÓN PARA RENDERIZAR BOTONES DE CONTACTO
     function renderTel(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small" style="width:50px"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" target="_blank" class="btn green btn-small" style="width:50px"><i class="material-icons">chat</i></a></div>` : ""; }
+    
     function limpiarPantallaIngreso() { document.getElementById('s-input').value=""; document.getElementById('s-box').innerHTML=""; document.getElementById('s-results').classList.add('hidden'); }
     function limpiarPantallaSalida() { document.getElementById('ex-input').value=""; document.getElementById('ex-results').innerHTML=""; document.getElementById('ex-results').classList.add('hidden'); }
     function limpiarFormVisita() { ['v-nom','v-tel','v-placa','v-obs'].forEach(id => document.getElementById(id).value = ""); document.getElementById('v-tipo').selectedIndex = 0; }
     function cancelarVisita() { limpiarFormVisita(); showView('view-search'); }
     function prepararFormVisita() { document.getElementById('v-inm').value = currentInmueble; showView('view-visita'); }
+    
     async function guardarVisita() {
       const d = { inm: currentInmueble, nom: document.getElementById('v-nom').value, tel: document.getElementById('v-tel').value, tipo: document.getElementById('v-tipo').value, placa: document.getElementById('v-placa').value, obs: document.getElementById('v-obs').value };
+      if(!d.nom || !d.placa) { alert("Nombre y Placa son obligatorios"); return; }
       const r = await call({action:'registrarVisita', data:d, idVig:user.id, nomVig:user.nombre});
       if(r.success) { alert("Registro Guardado"); volverMenu(); }
     }
+    
     async function confirmarSalida(f) {
-      const r = await call({action:'registrarSalida', visitaId:f});
+      const r = await call({action:'registrarSalida', visitaId:f, idVig:user.id, nomVig:user.nombre});
       if(r.success) { alert("Salida Exitosa"); buscarSalidas(); }
     }
+    
     function checkPassMatch() {
       const n1 = document.getElementById('p-new1').value, n2 = document.getElementById('p-new2').value;
       const btn = document.getElementById('btn-update-pass');
       if(n1 && n1 === n2 && n1.length >= 8) btn.classList.remove('disabled'); else btn.classList.add('disabled');
     }
+    
     async function ejecutarCambioPass() {
       const r = await call({action:'cambiarPass', id:user.id, oldP:document.getElementById('p-old').value, newP:document.getElementById('p-new1').value});
       if(r.success) { alert("Contraseña Actualizada"); volverMenu(); } else alert(r.message);
