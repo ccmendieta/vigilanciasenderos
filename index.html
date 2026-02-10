@@ -20,29 +20,23 @@
     .btn-volver-menu { background-color: #ff9800 !important; color: white !important; }
     .result-box { background: #f5f5f5; border-radius: 12px; padding: 15px; margin-top: 20px; border-left: 5px solid #1a237e; }
     .tag { background: #e8eaf6; padding: 5px 10px; border-radius: 5px; display: block; margin-bottom: 5px; font-size: 0.85rem; }
-    .input-field label { color: #1a237e !important; }
   </style>
 </head>
 <body>
   <div class="progress" id="loader"><div class="indeterminate orange"></div></div>
+
   <div class="container" style="max-width: 450px; margin-top: 5vh; padding-bottom: 30px;">
     
     <div id="view-login" class="card-panel center-align white">
       <i class="material-icons large indigo-text">security</i>
       <h1 class="brand-logo">Control Vigilancia</h1>
-      <div class="input-field">
-        <input id="l-id" type="text" oninput="this.value=this.value.toUpperCase()">
-        <label for="l-id">Usuario</label>
-      </div>
-      <div class="input-field">
-        <input id="l-pass" type="password">
-        <label for="l-pass">Contraseña</label>
-      </div>
+      <div class="input-field"><input id="l-id" type="text" placeholder="ID Vigilante" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field"><input id="l-pass" type="password" placeholder="Contraseña"></div>
       <button class="btn btn-main-nav" onclick="login()">Acceder</button>
     </div>
 
     <div id="view-menu" class="hidden card-panel white center-align">
-      <h5>Panel Vigilante</h5>
+      <h5>Panel de Gestión</h5>
       <p class="blue-text" id="u-nom"></p>
       <button class="btn btn-main-nav" onclick="showView('view-search')">Registrar Ingreso</button>
       <button class="btn btn-main-nav" onclick="showView('view-exit')">Registrar Salida</button>
@@ -56,94 +50,94 @@
       <p class="red-text" id="u-nom-admin"></p>
       <button class="btn btn-main-nav" onclick="showView('view-search')">Registrar Ingreso</button>
       <button class="btn btn-main-nav" onclick="showView('view-exit')">Registrar Salida</button>
-      <button class="btn btn-main-nav" onclick="alert('Gestión Vigilantes')">Gestionar Vigilantes</button>
+      <button class="btn btn-main-nav" onclick="alert('Gestión de Vigilantes')">Gestionar Vigilantes</button>
+      <button class="btn btn-main-nav" onclick="alert('Reportes')">Ver Reportes</button>
       <button class="btn btn-main-nav" onclick="showView('view-pass')">Cambiar Contraseña</button>
       <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
     </div>
 
     <div id="view-search" class="hidden card-panel white">
-      <h5>Registro Ingreso</h5>
-      <div class="input-field">
-        <input id="s-input" type="text" oninput="this.value=this.value.toUpperCase()">
-        <label for="s-input">Inmueble o Placa</label>
-      </div>
+      <h5 class="center-align">Registro de Ingreso</h5>
+      <div class="input-field"><input id="s-input" type="text" placeholder="Inmueble o Placa" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="row">
-        <div class="col s6"><button class="btn grey lighten-2" onclick="limpiarIngreso()">Limpiar</button></div>
+        <div class="col s6"><button class="btn grey lighten-2 black-text" onclick="limpiarPantallaIngreso()">Limpiar</button></div>
         <div class="col s6"><button class="btn btn-buscar" onclick="buscarIngreso()">Buscar</button></div>
       </div>
       <div id="s-results" class="hidden">
         <div id="s-box" class="result-box"></div>
-        <button class="btn btn-main-nav" onclick="prepararVisita()">Nueva Visita</button>
+        <button class="btn btn-main-nav" style="margin-top:20px" onclick="prepararFormVisita()">Registrar Nueva Visita</button>
       </div>
-      <button class="btn btn-volver-menu" onclick="volverMenu()">Volver</button>
+      <button class="btn btn-volver-menu" style="margin-top:20px" onclick="volverMenu()">Volver al Menú</button>
     </div>
 
     <div id="view-visita" class="hidden card-panel white">
-      <h5>Nueva Visita</h5>
-      <div class="input-field"><input id="v-inm" type="text" readonly><label class="active">Inmueble</label></div>
-      <div class="input-field"><input id="v-nom" type="text" oninput="this.value=this.value.toUpperCase()"><label>Nombre Visitante</label></div>
-      <div class="input-field"><input id="v-tel" type="number"><label>Teléfono</label></div>
+      <h5 class="center-align">Nuevo Registro de Visita</h5>
+      <div class="input-field"><input id="v-inm" type="text" readonly><label class="active">Inmueble a visitar</label></div>
+      <div class="input-field"><input id="v-nom" type="text" placeholder="NOMBRE" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field"><input id="v-tel" type="number" placeholder="TELÉFONO"></div>
       <label>Vehículo</label>
-      <select id="v-tipo" class="browser-default" style="margin-bottom:15px">
-        <option value="PEATONAL">PEATONAL</option><option value="TAXI">TAXI</option><option value="MOTOCICLETA">MOTOCICLETA</option><option value="AUTOMÓVIL">AUTOMÓVIL</option><option value="CAMIONETA">CAMIONETA</option>
+      <select id="v-tipo" class="browser-default" style="margin-bottom:20px; border-radius:8px; border:1px solid #ddd">
+        <option value="PEATONAL">PEATONAL</option><option value="TAXI">TAXI</option><option value="MOTOCICLETA">MOTOCICLETA</option><option value="AUTOMÓVIL">AUTOMÓVIL</option><option value="CAMIONETA">CAMIONETA</option><option value="BICICLETA">BICICLETA</option>
       </select>
-      <div class="input-field"><input id="v-placa" type="text" oninput="this.value=this.value.toUpperCase()"><label>Placa</label></div>
-      <div class="input-field"><textarea id="v-obs" class="materialize-textarea"></textarea><label>Observaciones</label></div>
-      <button class="btn btn-buscar" onclick="guardarVisita()">Guardar</button>
-      <button class="btn btn-volver-menu" onclick="showView('view-search')">Cancelar</button>
+      <div class="input-field"><input id="v-placa" type="text" placeholder="PLACA" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field"><textarea id="v-obs" class="materialize-textarea" placeholder="OBSERVACIONES..."></textarea></div>
+      <button class="btn btn-buscar" onclick="guardarVisita()">Guardar Registro</button>
+      <button class="btn btn-volver-menu" onclick="cancelarVisita()">Volver</button>
     </div>
 
     <div id="view-exit" class="hidden card-panel white">
-      <h5>Control Salida</h5>
-      <div class="input-field">
-        <input id="ex-input" type="text" oninput="this.value=this.value.toUpperCase()">
-        <label for="ex-input">Inmueble o Placa</label>
-      </div>
+      <h5 class="center-align">Control de Salida</h5>
+      <div class="input-field"><input id="ex-input" type="text" placeholder="Inmueble o Placa" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="row">
-        <div class="col s6"><button class="btn grey lighten-2" onclick="limpiarSalida()">Limpiar</button></div>
+        <div class="col s6"><button class="btn grey lighten-2 black-text" onclick="limpiarPantallaSalida()">Limpiar</button></div>
         <div class="col s6"><button class="btn btn-buscar" onclick="buscarSalidas()">Buscar</button></div>
       </div>
       <div id="ex-results" class="hidden"></div>
-      <button class="btn btn-volver-menu" onclick="volverMenu()">Volver</button>
+      <button class="btn btn-volver-menu" style="margin-top:20px" onclick="volverMenu()">Volver al Menú</button>
     </div>
 
     <div id="view-pass" class="hidden card-panel white">
-      <h5>Seguridad</h5>
-      <div class="input-field"><input id="p-old" type="password"><label>Clave Actual</label></div>
-      <div class="input-field"><input id="p-new1" type="password" oninput="checkPassMatch()"><label>Nueva Clave</label></div>
-      <div class="input-field"><input id="p-new2" type="password" oninput="checkPassMatch()"><label>Confirmar Clave</label></div>
+      <h5 class="center-align">Seguridad</h5>
+      <div class="input-field"><label class="active">Contraseña Actual</label><input id="p-old" type="password"></div>
+      <div class="input-field"><label class="active">Nueva Contraseña</label><input id="p-new1" type="password" oninput="checkPassMatch()"></div>
+      <div class="input-field"><label class="active">Repetir Nueva Contraseña</label><input id="p-new2" type="password" oninput="checkPassMatch()"></div>
       <button id="btn-update-pass" class="btn btn-main-nav disabled" onclick="ejecutarCambioPass()">Actualizar</button>
-      <button class="btn btn-volver-menu" onclick="volverMenu()">Volver</button>
+      <button class="btn btn-volver-menu" onclick="volverMenu()">Volver al Menú</button>
     </div>
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbzZhuXhb3pqdNXnH4indIT9vzbISN7p8OgD70E5jL-a9EFYF-Zk2YgFnevYYui-zZfC/exec";
+    const API = "https://script.google.com/macros/s/AKfycbzp0w4S2Atn_fXNVTJ8wI1FMkaAkMfKU9Ee4toE0FBE2wEVk6_ebhX4Anlx7Vxftlxp/exec";
     let user = {};
     let currentInmueble = "";
 
     async function call(p) {
       document.getElementById('loader').style.display='block';
       try { const r = await fetch(API,{method:'POST',body:JSON.stringify(p)}); return await r.json(); }
-      catch(e) { alert("Error API"); return {success:false}; }
+      catch(e) { alert("Error"); return {success:false}; }
       finally { document.getElementById('loader').style.display='none'; }
     }
 
     function showView(v) {
       ['view-login','view-menu','view-admin','view-search','view-visita','view-exit','view-pass'].forEach(i=>document.getElementById(i).classList.add('hidden'));
       document.getElementById(v).classList.remove('hidden');
-      M.updateTextFields();
     }
 
     function volverMenu() {
-      limpiarIngreso(); limpiarSalida();
-      if(user.rol === 'ADMINISTRADOR') { document.getElementById('u-nom-admin').innerText = "Admin: " + user.nombre; showView('view-admin'); }
-      else { document.getElementById('u-nom').innerText = "Vigilante: " + user.nombre; showView('view-menu'); }
+      limpiarPantallaIngreso(); limpiarPantallaSalida(); limpiarFormVisita();
+      if(user.rol === 'ADMINISTRADOR') {
+        document.getElementById('u-nom-admin').innerText = "Admin: " + user.nombre;
+        showView('view-admin');
+      } else {
+        document.getElementById('u-nom').innerText = "Vigilante: " + user.nombre;
+        showView('view-menu');
+      }
     }
 
     async function login() {
       const r = await call({action:'login', id:document.getElementById('l-id').value, pass:document.getElementById('l-pass').value});
-      if(r.success) { user = r; volverMenu(); } else alert(r.message);
+      if(r.success) { user = r; volverMenu(); }
+      else alert(r.message);
     }
 
     function logout() { location.reload(); }
@@ -156,17 +150,23 @@
         let h = "";
         if(r.tipo === "PROPIETARIO") {
           currentInmueble = r.data.inmueble;
-          h += `<h6><b>RESIDENTES INM ${r.data.inmueble}</b></h6><p><b>Ppal:</b> ${r.data.nom1} - ${r.data.tel1}</p>${renderTel(r.data.tel1)}`;
+          h += `<h6><b>RESIDENTES DEL INMUEBLE ${r.data.inmueble}</b></h6>`;
+          h += `<p><b>Ppal:</b> ${r.data.nom1} - ${r.data.tel1}</p>${renderTel(r.data.tel1)}`;
           const res = [r.data.nom2, r.data.nom3, r.data.nom4, r.data.nom5].filter(n => n && n.trim() !== "");
           if(res.length) h += `<p><b>Otros:</b> ${res.join(', ')}</p>`;
-          h += `<hr><h6><b>VEHÍCULOS</b></h6>`;
-          [r.data.v1, r.data.v2, r.data.v3, r.data.v4, r.data.v5].forEach(v => { if(v.p) h += `<span class="tag">${v.t}: ${v.p}</span>`; });
+          h += `<hr><h6><b>VEHÍCULOS REGISTRADOS</b></h6>`;
+          [r.data.v1, r.data.v2, r.data.v3, r.data.v4, r.data.v5].forEach(v => {
+             if(v.p) h += `<span class="tag">${v.t}: ${v.p}</span>`;
+          });
         } else {
           currentInmueble = r.visita.inm;
-          h += `<h6 class="red-text"><b>VISITA ACTIVA</b></h6><p><b>Ingreso:</b> ${r.visita.fechaI} | ${r.visita.horaI}</p>
-                <p><b>Visitante:</b> ${r.visita.nom}</p><p><b>Tel:</b> ${r.visita.tel}</p>${renderTel(r.visita.tel)}
-                <p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>
-                <hr><h6><b>CONTACTO RESIDENTE</b></h6><p><b>Ppal:</b> ${r.propietario.nom} - ${r.propietario.tel}</p>${renderTel(r.propietario.tel)}`;
+          h += `<h6 class="red-text"><b>VISITA ACTIVA DETECTADA</b></h6>
+                <p><b>Ingreso:</b> ${r.visita.fechaI} | ${r.visita.horaI}</p>
+                <p><b>Inmueble:</b> ${r.visita.inm}</p><p><b>Visitante:</b> ${r.visita.nom}</p>
+                <p><b>Tel:</b> ${r.visita.tel}</p><p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>
+                <p><b>Obs:</b> ${r.visita.obs}</p>
+                <hr><h6><b>ANFITRIÓN (PROPIETARIO)</b></h6>
+                <p><b>Ppal:</b> ${r.propietario.nom} - ${r.propietario.tel}</p>${renderTel(r.propietario.tel)}`;
         }
         box.innerHTML = h; document.getElementById('s-results').classList.remove('hidden');
       } else alert(r.message);
@@ -175,26 +175,36 @@
     async function buscarSalidas() {
       const t = document.getElementById('ex-input').value; if(!t) return;
       const r = await call({action:'buscarVisitasActivas', termino:t});
-      const div = document.getElementById('ex-results'); div.innerHTML = "";
+      const resDiv = document.getElementById('ex-results'); resDiv.innerHTML = "";
       if(r.success && r.data.length > 0) {
         r.data.forEach(v => {
-          div.innerHTML += `<div class="result-box"><p><b>Inm:</b> ${v.inm} | <b>Vis:</b> ${v.nom}</p><p><b>Tel:</b> ${v.tel}</p>${renderTel(v.tel)}
-            <p><b>Placa:</b> ${v.placa}</p><button class="btn btn-buscar" onclick="confirmarSalida(${v.fila})">Registrar Salida</button></div>`;
+          resDiv.innerHTML += `
+            <div class="result-box">
+              <p><b>Fecha:</b> ${v.fechaI} | <b>Hora:</b> ${v.horaI}</p>
+              <p><b>Inmueble:</b> ${v.inm}</p><p><b>Nombre:</b> ${v.nom}</p>
+              <p><b>Tel:</b> ${v.tel}</p><p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p>
+              <p><b>Obs:</b> ${v.obs}</p>
+              <button class="btn btn-buscar" onclick="confirmarSalida(${v.fila})">Confirmar Salida</button>
+            </div>`;
         });
-        div.classList.remove('hidden');
-      } else alert("Sin resultados");
+        resDiv.classList.remove('hidden');
+      } else alert("No se encontraron visitas activas.");
     }
 
-    function renderTel(t) { return t ? `<div style="display:flex;gap:10px;margin:5px 0 10px 0"><a href="tel:${t}" class="btn blue btn-small" style="width:50px"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" target="_blank" class="btn green btn-small" style="width:50px"><i class="material-icons">chat</i></a></div>` : ""; }
-    function prepararVisita() { document.getElementById('v-inm').value = currentInmueble; showView('view-visita'); }
+    function renderTel(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small" style="width:50px"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" target="_blank" class="btn green btn-small" style="width:50px"><i class="material-icons">chat</i></a></div>` : ""; }
+    function limpiarPantallaIngreso() { document.getElementById('s-input').value=""; document.getElementById('s-box').innerHTML=""; document.getElementById('s-results').classList.add('hidden'); }
+    function limpiarPantallaSalida() { document.getElementById('ex-input').value=""; document.getElementById('ex-results').innerHTML=""; document.getElementById('ex-results').classList.add('hidden'); }
+    function limpiarFormVisita() { ['v-nom','v-tel','v-placa','v-obs'].forEach(id => document.getElementById(id).value = ""); document.getElementById('v-tipo').selectedIndex = 0; }
+    function cancelarVisita() { limpiarFormVisita(); showView('view-search'); }
+    function prepararFormVisita() { document.getElementById('v-inm').value = currentInmueble; showView('view-visita'); }
     async function guardarVisita() {
       const d = { inm: currentInmueble, nom: document.getElementById('v-nom').value, tel: document.getElementById('v-tel').value, tipo: document.getElementById('v-tipo').value, placa: document.getElementById('v-placa').value, obs: document.getElementById('v-obs').value };
       const r = await call({action:'registrarVisita', data:d, idVig:user.id, nomVig:user.nombre});
-      if(r.success) { alert("Guardado"); volverMenu(); }
+      if(r.success) { alert("Registro Guardado"); volverMenu(); }
     }
     async function confirmarSalida(f) {
-      const r = await call({action:'registrarSalida', visitaId:f, idVig:user.id, nomVig:user.nombre});
-      if(r.success) { alert("Salida OK"); buscarSalidas(); }
+      const r = await call({action:'registrarSalida', visitaId:f});
+      if(r.success) { alert("Salida Exitosa"); buscarSalidas(); }
     }
     function checkPassMatch() {
       const n1 = document.getElementById('p-new1').value, n2 = document.getElementById('p-new2').value;
@@ -203,10 +213,8 @@
     }
     async function ejecutarCambioPass() {
       const r = await call({action:'cambiarPass', id:user.id, oldP:document.getElementById('p-old').value, newP:document.getElementById('p-new1').value});
-      if(r.success) { alert("Clave actualizada"); volverMenu(); } else alert(r.message);
+      if(r.success) { alert("Contraseña Actualizada"); volverMenu(); } else alert(r.message);
     }
-    function limpiarIngreso() { document.getElementById('s-input').value=""; document.getElementById('s-results').classList.add('hidden'); }
-    function limpiarSalida() { document.getElementById('ex-input').value=""; document.getElementById('ex-results').classList.add('hidden'); }
   </script>
 </body>
 </html>
