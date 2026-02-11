@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vigilancia - Senderos de las Acacias v17</title>
+  <title>Vigilancia - Senderos de las Acacias</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -83,18 +83,18 @@
       <h5 class="center-align">Nuevo Registro de Visita</h5>
       <div class="input-field"><input id="v-inm" type="text" readonly><label class="active">Inmueble a visitar</label></div>
       <div class="input-field"><input id="v-nom" type="text" placeholder="NOMBRE" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="input-field"><input id="v-tel" type="number" placeholder="TELÉFONO (10 dígitos)"></div>
+      <div class="input-field"><input id="v-tel" type="number" placeholder="TELÉFONO (10 dígitos, inicia con 3)"></div>
       <label>Vehículo</label>
       <select id="v-tipo" class="browser-default" style="margin-bottom:20px; border-radius:8px; border:1px solid #ddd">
-        <option value="PEATONAL">PEATONAL (Sin bloqueo)</option>
-        <option value="BICICLETA">BICICLETA (Sin bloqueo)</option>
-        <option value="TAXI">TAXI (Auto-salida 15m)</option>
-        <option value="DOMICILIO">DOMICILIO (Auto-salida 15m)</option>
-        <option value="ENTREGA">ENTREGA (Auto-salida 15m)</option>
-        <option value="PROVEEDOR">PROVEEDOR (Auto-salida 45m)</option>
-        <option value="MOTOCICLETA">MOTOCICLETA (Bloqueo Placa)</option>
-        <option value="AUTOMÓVIL">AUTOMÓVIL (Bloqueo Placa)</option>
-        <option value="CAMIONETA">CAMIONETA (Bloqueo Placa)</option>
+        <option value="PEATONAL">PEATONAL</option>
+        <option value="TAXI">TAXI</option>
+        <option value="MOTOCICLETA">MOTOCICLETA</option>
+        <option value="AUTOMÓVIL">AUTOMÓVIL</option>
+        <option value="CAMIONETA">CAMIONETA</option>
+        <option value="BICICLETA">BICICLETA</option>
+        <option value="ENTREGA">ENTREGA</option>
+        <option value="DOMICILIO">DOMICILIO</option>
+        <option value="PROVEEDOR">PROVEEDOR</option>
       </select>
       <div class="input-field"><input id="v-placa" type="text" placeholder="PLACA" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="input-field"><textarea id="v-obs" class="materialize-textarea" placeholder="OBSERVACIONES..."></textarea></div>
@@ -125,7 +125,7 @@
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbwNYV6jb1M9KMJ91rRnIq3GIzt93ieryf655eULki--r5PtzoqGurNdGp1DMxo9i2NL/exec";
+    const API = "https://script.google.com/macros/s/AKfycbxHeTPY6psFRJRBRM7MedmxDi8XAGi9_rXIQR-tVXWhvQhlm-qn1TXpAj6onG1z0tFz/exec";
     let user = {};
     let currentInmueble = "";
 
@@ -174,19 +174,22 @@
         let h = "";
         if(r.tipo === "PROPIETARIO") {
           currentInmueble = r.data.inmueble;
-          h += `<h6><b>RESIDENTES INMUEBLE ${r.data.inmueble}</b></h6>`;
-          h += `<p><b>Residente:</b> ${r.data.nom1}</p>${renderTel(r.data.tel1)}`;
+          h += `<h6><b>RESIDENTES DEL INMUEBLE ${r.data.inmueble}</b></h6>`;
+          h += `<p><b>Residente Principal:</b> ${r.data.nom1}</p>${renderTel(r.data.tel1)}`;
           const res = [r.data.nom2, r.data.nom3, r.data.nom4, r.data.nom5].filter(n => n && n.trim() !== "");
           if(res.length) h += `<p><b>Otros:</b> ${res.join(', ')}</p>`;
-          h += `<hr><h6><b>VEHÍCULOS ASOCIADOS</b></h6>`;
+          h += `<hr><h6><b>VEHÍCULOS REGISTRADOS</b></h6>`;
           [r.data.v1, r.data.v2, r.data.v3, r.data.v4, r.data.v5].forEach(v => { if(v.p) h += `<span class="tag">${v.t}: ${v.p}</span>`; });
         } else {
           currentInmueble = r.visita.inm;
-          h += `<h6 class="red-text"><b>VISITA DENTRO</b></h6>
+          h += `<h6 class="red-text"><b>VISITA ACTIVA DETECTADA</b></h6>
                 <p><b>Ingreso:</b> ${r.visita.fechaI} | ${r.visita.horaI}</p>
                 <p><b>Inmueble:</b> ${r.visita.inm}</p><p><b>Visitante:</b> ${r.visita.nom}</p>
                 ${renderTel(r.visita.tel)}
-                <p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>`;
+                <p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>
+                <p><b>Obs:</b> ${r.visita.obs}</p>
+                <hr><h6><b>RESIDENTE RESPONSABLE</b></h6>
+                <p><b>Residente Principal:</b> ${r.propietario.nom}</p>${renderTel(r.propietario.tel)}`;
         }
         box.innerHTML = h; document.getElementById('s-results').classList.remove('hidden');
       } else alert(r.message);
@@ -200,9 +203,11 @@
         r.data.forEach(v => {
           resDiv.innerHTML += `
             <div class="result-box">
-              <p><b>Inm:</b> ${v.inm} | <b>Nombre:</b> ${v.nom}</p>
-              <p><b>Entrada:</b> ${v.horaI} | <b>Vehículo:</b> ${v.tipoV}</p>
-              <p><b>Placa:</b> ${v.placa}</p>
+              <p><b>Fecha:</b> ${v.fechaI} | <b>Hora:</b> ${v.horaI}</p>
+              <p><b>Inmueble:</b> ${v.inm}</p><p><b>Nombre:</b> ${v.nom}</p>
+              ${renderTel(v.tel)}
+              <p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p>
+              <p><b>Obs:</b> ${v.obs}</p>
               <button class="btn btn-buscar" onclick="confirmarSalida(${v.fila})">Confirmar Salida</button>
             </div>`;
         });
@@ -213,8 +218,9 @@
     function renderTel(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small" style="width:50px"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" target="_blank" class="btn green btn-small" style="width:50px"><i class="material-icons">chat</i></a></div>` : ""; }
 
     async function guardarVisita() {
-      const d = { inm: currentInmueble, nom: document.getElementById('v-nom').value, tel: document.getElementById('v-tel').value, tipo: document.getElementById('v-tipo').value, placa: document.getElementById('v-placa').value, obs: document.getElementById('v-obs').value };
-      if(!d.nom) { alert("Nombre obligatorio"); return; }
+      const tel = document.getElementById('v-tel').value;
+      if(!/^3\d{9}$/.test(tel)) { alert("Teléfono inválido (10 dígitos, inicia en 3)"); return; }
+      const d = { inm: currentInmueble, nom: document.getElementById('v-nom').value, tel: tel, tipo: document.getElementById('v-tipo').value, placa: document.getElementById('v-placa').value, obs: document.getElementById('v-obs').value };
       const r = await call({action:'registrarVisita', data:d});
       if(r.success) { alert("Registro Guardado"); volverMenu(); } else alert(r.message);
     }
