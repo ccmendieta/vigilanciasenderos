@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vigilancia - Senderos de las Acacias</title>
+  <title>Vigilancia - Senderos de las Acacias v17</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -24,7 +24,6 @@
     input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
     .pass-info { font-size: 0.8rem; color: #555; margin-bottom: 15px; padding: 10px; background: #fff3e0; border-radius: 8px; }
-    .info-time { font-size: 0.75rem; color: #d32f2f; font-weight: 600; margin-top: -15px; margin-bottom: 15px; display: block; }
   </style>
 </head>
 <body>
@@ -84,22 +83,19 @@
       <h5 class="center-align">Nuevo Registro de Visita</h5>
       <div class="input-field"><input id="v-inm" type="text" readonly><label class="active">Inmueble a visitar</label></div>
       <div class="input-field"><input id="v-nom" type="text" placeholder="NOMBRE" oninput="this.value=this.value.toUpperCase()"></div>
-      <div class="input-field"><input id="v-tel" type="number" placeholder="TELÉFONO (10 dígitos, inicia con 3)"></div>
-      
-      <label>Vehículo / Tipo de Visita</label>
-      <select id="v-tipo" class="browser-default" style="margin-bottom:20px; border-radius:8px; border:1px solid #ddd" onchange="updateUIByTipo()">
+      <div class="input-field"><input id="v-tel" type="number" placeholder="TELÉFONO (10 dígitos)"></div>
+      <label>Vehículo</label>
+      <select id="v-tipo" class="browser-default" style="margin-bottom:20px; border-radius:8px; border:1px solid #ddd">
         <option value="PEATONAL">PEATONAL (Sin bloqueo)</option>
         <option value="BICICLETA">BICICLETA (Sin bloqueo)</option>
-        <option value="TAXI">TAXI (Auto-salida 15 min)</option>
-        <option value="DOMICILIO">DOMICILIO (Auto-salida 15 min)</option>
-        <option value="ENTREGA">ENTREGA (Auto-salida 15 min)</option>
-        <option value="PROVEEDOR">PROVEEDOR (Auto-salida 60 min)</option>
-        <option value="MOTOCICLETA">MOTOCICLETA</option>
-        <option value="AUTOMÓVIL">AUTOMÓVIL</option>
-        <option value="CAMIONETA">CAMIONETA</option>
+        <option value="TAXI">TAXI (Auto-salida 15m)</option>
+        <option value="DOMICILIO">DOMICILIO (Auto-salida 15m)</option>
+        <option value="ENTREGA">ENTREGA (Auto-salida 15m)</option>
+        <option value="PROVEEDOR">PROVEEDOR (Auto-salida 45m)</option>
+        <option value="MOTOCICLETA">MOTOCICLETA (Bloqueo Placa)</option>
+        <option value="AUTOMÓVIL">AUTOMÓVIL (Bloqueo Placa)</option>
+        <option value="CAMIONETA">CAMIONETA (Bloqueo Placa)</option>
       </select>
-      <span id="v-info-tipo" class="info-time hidden"></span>
-
       <div class="input-field"><input id="v-placa" type="text" placeholder="PLACA" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="input-field"><textarea id="v-obs" class="materialize-textarea" placeholder="OBSERVACIONES..."></textarea></div>
       <button class="btn btn-buscar" onclick="guardarVisita()">Guardar Registro</button>
@@ -129,7 +125,7 @@
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbzsu0kThBOgssWOcnLrgOukf6P4PghvQE9ILDO8BscDNJPZtd6Nx6lqbvBgpIOGLxXM/exec"; // REEMPLAZAR CON TU URL DE DESPLIEGUE
+    const API = "https://script.google.com/macros/s/AKfycbzK2-qxZ4EaTiI5XCIn4J6pCoA-xyWNWfMXG_kZ8EgR30i1hBi2kTgWDpK9TEqNhaDC/exec";
     let user = {};
     let currentInmueble = "";
 
@@ -178,22 +174,19 @@
         let h = "";
         if(r.tipo === "PROPIETARIO") {
           currentInmueble = r.data.inmueble;
-          h += `<h6><b>RESIDENTES DEL INMUEBLE ${r.data.inmueble}</b></h6>`;
-          h += `<p><b>Residente Principal:</b> ${r.data.nom1}</p>${renderTel(r.data.tel1)}`;
+          h += `<h6><b>RESIDENTES INMUEBLE ${r.data.inmueble}</b></h6>`;
+          h += `<p><b>Residente:</b> ${r.data.nom1}</p>${renderTel(r.data.tel1)}`;
           const res = [r.data.nom2, r.data.nom3, r.data.nom4, r.data.nom5].filter(n => n && n.trim() !== "");
           if(res.length) h += `<p><b>Otros:</b> ${res.join(', ')}</p>`;
-          h += `<hr><h6><b>VEHÍCULOS REGISTRADOS</b></h6>`;
+          h += `<hr><h6><b>VEHÍCULOS ASOCIADOS</b></h6>`;
           [r.data.v1, r.data.v2, r.data.v3, r.data.v4, r.data.v5].forEach(v => { if(v.p) h += `<span class="tag">${v.t}: ${v.p}</span>`; });
         } else {
           currentInmueble = r.visita.inm;
-          h += `<h6 class="red-text"><b>VISITA ACTIVA DETECTADA</b></h6>
+          h += `<h6 class="red-text"><b>VISITA DENTRO</b></h6>
                 <p><b>Ingreso:</b> ${r.visita.fechaI} | ${r.visita.horaI}</p>
                 <p><b>Inmueble:</b> ${r.visita.inm}</p><p><b>Visitante:</b> ${r.visita.nom}</p>
                 ${renderTel(r.visita.tel)}
-                <p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>
-                <p><b>Obs:</b> ${r.visita.obs}</p>
-                <hr><h6><b>RESIDENTE RESPONSABLE</b></h6>
-                <p><b>Residente Principal:</b> ${r.propietario.nom}</p>${renderTel(r.propietario.tel)}`;
+                <p><b>Vehículo:</b> ${r.visita.tipoV} (${r.visita.placa})</p>`;
         }
         box.innerHTML = h; document.getElementById('s-results').classList.remove('hidden');
       } else alert(r.message);
@@ -207,11 +200,9 @@
         r.data.forEach(v => {
           resDiv.innerHTML += `
             <div class="result-box">
-              <p><b>Fecha:</b> ${v.fechaI} | <b>Hora:</b> ${v.horaI}</p>
-              <p><b>Inmueble:</b> ${v.inm}</p><p><b>Nombre:</b> ${v.nom}</p>
-              ${renderTel(v.tel)}
-              <p><b>Vehículo:</b> ${v.tipoV} - ${v.placa}</p>
-              <p><b>Obs:</b> ${v.obs}</p>
+              <p><b>Inm:</b> ${v.inm} | <b>Nombre:</b> ${v.nom}</p>
+              <p><b>Entrada:</b> ${v.horaI} | <b>Vehículo:</b> ${v.tipoV}</p>
+              <p><b>Placa:</b> ${v.placa}</p>
               <button class="btn btn-buscar" onclick="confirmarSalida(${v.fila})">Confirmar Salida</button>
             </div>`;
         });
@@ -221,24 +212,9 @@
 
     function renderTel(t) { return t ? `<div style="display:flex;gap:10px;margin-top:10px"><a href="tel:${t}" class="btn blue btn-small" style="width:50px"><i class="material-icons">phone</i></a><a href="https://wa.me/57${t}" target="_blank" class="btn green btn-small" style="width:50px"><i class="material-icons">chat</i></a></div>` : ""; }
 
-    function updateUIByTipo() {
-      const tipo = document.getElementById('v-tipo').value;
-      const info = document.getElementById('v-info-tipo');
-      if(["TAXI", "DOMICILIO", "ENTREGA"].includes(tipo)) {
-        info.innerText = "⚠ Salida automática en 15 minutos";
-        info.classList.remove('hidden');
-      } else if (tipo === "PROVEEDOR") {
-        info.innerText = "⚠ Salida automática en 60 minutos";
-        info.classList.remove('hidden');
-      } else {
-        info.classList.add('hidden');
-      }
-    }
-
     async function guardarVisita() {
-      const tel = document.getElementById('v-tel').value;
-      if(!/^3\d{9}$/.test(tel)) { alert("Teléfono inválido (10 dígitos, inicia en 3)"); return; }
-      const d = { inm: currentInmueble, nom: document.getElementById('v-nom').value, tel: tel, tipo: document.getElementById('v-tipo').value, placa: document.getElementById('v-placa').value, obs: document.getElementById('v-obs').value };
+      const d = { inm: currentInmueble, nom: document.getElementById('v-nom').value, tel: document.getElementById('v-tel').value, tipo: document.getElementById('v-tipo').value, placa: document.getElementById('v-placa').value, obs: document.getElementById('v-obs').value };
+      if(!d.nom) { alert("Nombre obligatorio"); return; }
       const r = await call({action:'registrarVisita', data:d});
       if(r.success) { alert("Registro Guardado"); volverMenu(); } else alert(r.message);
     }
@@ -255,7 +231,7 @@
 
     function limpiarPantallaIngreso() { document.getElementById('s-input').value=""; document.getElementById('s-results').classList.add('hidden'); document.getElementById('s-box').innerHTML = ""; }
     function limpiarPantallaSalida() { document.getElementById('ex-input').value=""; document.getElementById('ex-results').classList.add('hidden'); document.getElementById('ex-results').innerHTML = ""; }
-    function limpiarFormVisita() { document.getElementById('v-nom').value = ""; document.getElementById('v-tel').value = ""; document.getElementById('v-placa').value = ""; document.getElementById('v-obs').value = ""; document.getElementById('v-tipo').selectedIndex = 0; document.getElementById('v-info-tipo').classList.add('hidden'); }
+    function limpiarFormVisita() { document.getElementById('v-nom').value = ""; document.getElementById('v-tel').value = ""; document.getElementById('v-placa').value = ""; document.getElementById('v-obs').value = ""; document.getElementById('v-tipo').selectedIndex = 0; }
     function limpiarCambioPass() { document.getElementById('p-old').value = ""; document.getElementById('p-new1').value = ""; document.getElementById('p-new2').value = ""; document.getElementById('btn-update-pass').classList.add('disabled'); }
 
     function prepararFormVisita() { document.getElementById('v-inm').value = currentInmueble; showView('view-visita'); }
