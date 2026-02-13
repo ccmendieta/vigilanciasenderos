@@ -96,7 +96,7 @@
         <option value="DOMICILIO">DOMICILIO</option>
         <option value="PROVEEDOR">PROVEEDOR</option>
       </select>
-      <div class="input-field"><input id="v-placa" type="text" placeholder="PLACA" oninput="this.value=this.value.toUpperCase()"></div>
+      <div class="input-field"><input id="v-placa" type="text" placeholder="PLACA (Opcional en Peatonal/Bici)" oninput="this.value=this.value.toUpperCase()"></div>
       <div class="input-field"><textarea id="v-obs" class="materialize-textarea" placeholder="OBSERVACIONES..."></textarea></div>
       <button class="btn btn-buscar" onclick="guardarVisita()">Guardar Registro</button>
       <button class="btn btn-volver-menu" onclick="cancelarVisita()">Volver</button>
@@ -125,16 +125,27 @@
   </div>
 
   <script>
-    const API = "https://script.google.com/macros/s/AKfycbxHeTPY6psFRJRBRM7MedmxDi8XAGi9_rXIQR-tVXWhvQhlm-qn1TXpAj6onG1z0tFz/exec";
+    const API = "https://script.google.com/macros/s/AKfycbwjIi_mL9UDQFvfvJeLyDG1Y1MZKi34ML-vTdFKrXRaa92j_XWfHLKKdBcDll3t2giu/exec"; // REEMPLAZAR CON TU URL DE DESPLIEGUE
     let user = {};
     let currentInmueble = "";
 
+    /**
+     * Llamada genérica al backend
+     */
     async function call(p) {
       document.getElementById('loader').style.display='block';
       p.idVig = user.id; p.nomVig = user.nombre; 
-      try { const r = await fetch(API,{method:'POST',body:JSON.stringify(p)}); return await r.json(); }
-      catch(e) { alert("Error de conexión"); return {success:false}; }
-      finally { document.getElementById('loader').style.display='none'; }
+      try { 
+        const r = await fetch(API,{method:'POST',body:JSON.stringify(p)}); 
+        return await r.json(); 
+      }
+      catch(e) { 
+        alert("Error de conexión"); 
+        return {success:false}; 
+      }
+      finally { 
+        document.getElementById('loader').style.display='none'; 
+      }
     }
 
     function showView(v) {
@@ -219,8 +230,26 @@
 
     async function guardarVisita() {
       const tel = document.getElementById('v-tel').value;
+      const tipo = document.getElementById('v-tipo').value;
+      const placa = document.getElementById('v-placa').value;
+
       if(!/^3\d{9}$/.test(tel)) { alert("Teléfono inválido (10 dígitos, inicia en 3)"); return; }
-      const d = { inm: currentInmueble, nom: document.getElementById('v-nom').value, tel: tel, tipo: document.getElementById('v-tipo').value, placa: document.getElementById('v-placa').value, obs: document.getElementById('v-obs').value };
+      
+      // Validación lógica de placa: Obligatoria para vehículos motorizados o domicilios
+      if((tipo !== "PEATONAL" && tipo !== "BICICLETA") && !placa) {
+        alert("La PLACA es obligatoria para este tipo de vehículo.");
+        return;
+      }
+
+      const d = { 
+        inm: currentInmueble, 
+        nom: document.getElementById('v-nom').value, 
+        tel: tel, 
+        tipo: tipo, 
+        placa: placa, 
+        obs: document.getElementById('v-obs').value 
+      };
+
       const r = await call({action:'registrarVisita', data:d});
       if(r.success) { alert("Registro Guardado"); volverMenu(); } else alert(r.message);
     }
@@ -242,6 +271,7 @@
 
     function prepararFormVisita() { document.getElementById('v-inm').value = currentInmueble; showView('view-visita'); }
     function cancelarVisita() { volverMenu(); }
+    
     function validarFuerzaPass() {
       const p = document.getElementById('p-new1').value, p2 = document.getElementById('p-new2').value;
       const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
